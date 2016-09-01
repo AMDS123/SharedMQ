@@ -1,5 +1,6 @@
 #include "shmmqcommu.hpp"
-//#include <sys/epoll.h>
+#include "errors.hpp"
+#include <sys/epoll.h>
 
 ShmMQCommu::ShmMQCommu(const char *conf_path)
 {
@@ -26,43 +27,52 @@ int ShmMQCommu::sendData(const void *data, unsigned data_len)
     return ret;
 }
 
-int ShmMQCommu::listen(SHM_CALLBACK *call_back)
+void ShmMQCommu::readDataUntilEmpty()
 {
-    /*
-    int poll_fd = epoll_create(1000);
-    struct epoll_event ev;
-    ev.events = EPOLLIN | EPOLLET;
-    ev.data.fd = smp->get_notify_fd();
-    int ctl_ret = epoll_ctl(poll_fd, EPOLL_CTL_ADD, ev.data.fd, &ev);
-    if (ctl_ret < 0)
-    {
-        perror("fuck you");
-        exit(1);
-    }
-
-    struct epoll_event events[1000];
-    */
     int ret;
-
     FOREVER
     {
-        ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len, true);
+        ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
         if (ret != 0)
         {
             break;
         }
         call_back->do_poll(&buffer_blob);
     }
+}
 
+int ShmMQCommu::listen(SHM_CALLBACK *call_back)
+{
+    int poll_fd = epoll_create(10);
+    struct epoll_event ev;
+    ev.events = EPOLLIN | EPOLLET;
+    ev.data.fd = smp->get_notify_fd();
+    int ctl_ret = epoll_ctl(poll_fd, EPOLL_CTL_ADD, ev.data.fd, &ev);
+    exit_if(ctl_ret < 0, "epoll_ctl");
+    
+    this->call_back = call_back;
+
+    readDataUntilEmpty();
+
+    struct epoll_event events[10];
     FOREVER
     {
-        //int nfds = epoll_wait(poll_fd, events, 1000, 5);
-        
-        //int ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
-        //call_back->do_poll(&buffer_blob);
-        if (smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len) == 0)
+        int nfds = epoll_wait(poll_fd, events, 10, 5);
+        if (nfds == -1)
         {
-            call_back->do_poll(&buffer_blob);
+            TELL_ERROR("epoll_wait.");
+            continue;
+        }
+        if (nfds > 0)
+        {
+            if (events[0].data.fd == smp->get_notify_fd())
+            {
+                readDataUntilEmpty();
+            }
+            else
+            {
+                TELL_ERROR("impossible.");
+            }
         }
     }
     return 0;

@@ -3,6 +3,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
+#include <iostream>
 
 long int getCurrentTimeInMillis()
 {
@@ -17,7 +18,6 @@ char buff[2600];
 int main()
 {
     ShmMQCommu smp("../../conf/test.ini");
-    sleep(10);
     printf("start!\n");
     std::ofstream ofs;
     ofs.open ("sender.txt", std::ofstream::out);
@@ -37,15 +37,8 @@ int main()
         unsigned len = rand() % 10 + 16;
         if (smp.sendData(buff, len) == 0)
         {
+            std::cout << "send data" << std::endl;
             ofs << std::string(buff, len) << "+" << getCurrentTimeInMillis() << std::endl;
-        }
-        else
-        {
-            if (flag == false)
-            {
-                flag = true;
-                ofs << std::string(buff, len) << "+" << i << " wocao" << std::endl;
-            }
         }
     }
     ofs.close();

@@ -29,9 +29,12 @@ public:
 
     int listen(SHM_CALLBACK *call_back);
 
+    void readDataUntilEmpty();
+
 private:
     Blob_Type buffer_blob;
     ShmMqProcessor *smp;
+    SHM_CALLBACK *call_back;
 };
 
 #endif

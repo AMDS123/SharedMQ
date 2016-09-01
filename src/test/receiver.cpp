@@ -27,6 +27,7 @@ public:
 
     void do_poll(Blob_Type *buffer_blob)
     {
+        std::cout << "receive data" << std::endl;
         long int currenttime = getCurrentTimeInMillis();
         ofs << std::string(buffer_blob->data, buffer_blob->len) << "+" << currenttime << std::endl;
     }
