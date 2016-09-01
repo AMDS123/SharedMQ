@@ -33,6 +33,3 @@ ECHO:
 clean:
 	$(call make_subdir , clean) 
 	../tools/deleteshm.sh
-
-#cleanobjs:
-#	rm $(OBJS) sender.o rec.o
