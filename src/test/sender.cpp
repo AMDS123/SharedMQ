@@ -1,20 +1,41 @@
 #include "shmmqcommu.hpp"
+#include <fstream>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+
+long int getCurrentTimeInMillis()
+{
+    struct timeval tp;
+    gettimeofday(&tp, NULL);
+    long int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+    return ms;
+}
+
+char buff[2600];
 
 int main()
 {
-    ShmMQCommu smp("../conf/test.ini");
-    
+    ShmMQCommu smp("../../conf/test.ini");
     sleep(10);
-    const char *fuck1 = "leechanx is niubi";
-    smp.sendData(fuck1, strlen(fuck1));
-    
-    const char *fuck2 = "liujiani is meili";
-    smp.sendData(fuck2, strlen(fuck2));
-    
-    const char *fuck3 = "guojiexiao is keai";
-    smp.sendData(fuck3, strlen(fuck3));
-    sleep(1);
+    printf("start!\n");
+    std::ofstream ofs;
+    ofs.open ("sender.txt", std::ofstream::out | std::ofstream::app);
 
-    const char *fuck4 = "zhangshuang is meibaole";
-    smp.sendData(fuck4, strlen(fuck4));
+    srand(time(NULL));
+
+    for (int i = 0;i < 2600; ++i)
+    {
+        buff[i] = i % 26 + 'a';
+    }
+
+    #define SCALE 100000
+
+    for (int i = 0;i < SCALE; ++i)
+    {
+        unsigned len = rand() % 10 + 16;
+        smp.sendData(buff, len);
+        ofs << std::string(buff, len) << "+" << getCurrentTimeInMillis() << std::endl;
+    }
+    ofs.close();
 }

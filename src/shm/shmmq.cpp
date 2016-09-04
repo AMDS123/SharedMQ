@@ -27,7 +27,6 @@ void ShmMQ::init(bool isSender)
 
 ShmMQ::ShmMQ(const char *path, int id, size_t shm_size)
 {
-    printf("===%s\n", path);
     key_t key = ftok(path, id);
     if (key == (key_t)-1)
     {
@@ -36,6 +35,7 @@ ShmMQ::ShmMQ(const char *path, int id, size_t shm_size)
     }
     
     this->shm_size = shm_size;
+    printf("what hell %lu\n", shm_size);
 
     if ((shmid = shmget(key, shm_size, 0666)) == -1)
     {

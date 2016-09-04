@@ -1,4 +1,5 @@
 #include "shmmqcommu.hpp"
+//#include <sys/epoll.h>
 
 ShmMQCommu::ShmMQCommu(const char *conf_path)
 {
@@ -9,7 +10,7 @@ ShmMQCommu::ShmMQCommu(const char *conf_path)
     const char *fifo_path = ConfigReader::getConfigReader().GetString("fifo", "fifopath", "").c_str();
 
     smp = new ShmMqProcessor(key_path, id, shmsize, fifo_path);
-    buffer_blob.capacity = 1024;
+    buffer_blob.capacity = shmsize;
     buffer_blob.data = new char[buffer_blob.capacity];
 }
 
@@ -26,12 +27,33 @@ int ShmMQCommu::sendData(const void *data, unsigned data_len)
 }
 
 int ShmMQCommu::listen(SHM_CALLBACK *call_back)
-{   
+{
+    /*
+    int poll_fd = epoll_create(1000);
+    struct epoll_event ev;
+    ev.events = EPOLLIN | EPOLLET;
+    ev.data.fd = smp->get_notify_fd();
+    int ctl_ret = epoll_ctl(poll_fd, EPOLL_CTL_ADD, ev.data.fd, &ev);
+    if (ctl_ret < 0)
+    {
+        perror("fuck you");
+        exit(1);
+    }
+
+    struct epoll_event events[1000];
+    */
     FOREVER
     {
-        printf("read data...\n");
-        int ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
-        call_back->do_poll(&buffer_blob);
+        //int nfds = epoll_wait(poll_fd, events, 1000, 5);
+        
+        //int ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
+        //call_back->do_poll(&buffer_blob);
+        while (1)
+        {
+            smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
+            printf("what the...\n");
+            call_back->do_poll(&buffer_blob);
+        }
     }
     return 0;
 }
