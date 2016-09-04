@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import sys
 
 send, rece = sys.argv[1], sys.argv[2]
@@ -13,13 +15,18 @@ with open(send, 'r') as sf:
             msg1, t1 = line1.strip().split('+')
             msg2, t2 = line2.strip().split('+')
             t1, t2 = int(t1), int(t2)
+            if msg1 != msg2:
+                print 'LINE', linesum, 'WRONG'
             diff += t2 - t1
             line1, line2 = sf.readline(), rf.readline()
         if not line1 and not line2:
             print 'OK'
         elif not line1:
-            print 'What???'
-        else:
-            print 'some data not come'
-        print diff * 1.0 / linesum, 'ms'
-
+            print 'IMPOSSIBLE'
+        unprocess_sum = 0
+        while line1:
+            unprocess_sum += 1
+            line1 = sf.readline()
+        if unprocess_sum:
+            print 'NO PROCESS SUM', unprocess_sum
+        print 'PROCESS COST', diff * 1.0 / linesum, 'MS, TOTAL', linesum
