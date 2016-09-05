@@ -1,5 +1,9 @@
 #include "shmmq.hpp"
 
+#include <unistd.h>
+#include <fstream>
+#include <sys/stat.h>
+
 void ShmMQ::init(bool isSender)
 {
     if ((shm_mem = shmat(shmid, NULL, 0)) == NULL)
@@ -23,6 +27,19 @@ void ShmMQ::init(bool isSender)
         *head_ptr = 0;
         *tail_ptr = 0;
     }
+
+    if (access("/tmp/shmmq", F_OK) == -1)
+    {
+        if (mkdir("/tmp/shmmq", S_IREAD | S_IWRITE | S_IEXEC) == -1)
+        {
+            perror("mkdir");
+        }
+    }
+
+    std::ofstream ofs;
+    ofs.open ("/tmp/shmmq/shmid", std::ofstream::out);
+    ofs << shmid;
+    ofs.close();
 }
 
 ShmMQ::ShmMQ(const char *path, int id, size_t shm_size)
@@ -35,7 +52,6 @@ ShmMQ::ShmMQ(const char *path, int id, size_t shm_size)
     }
     
     this->shm_size = shm_size;
-    printf("what hell %lu\n", shm_size);
 
     if ((shmid = shmget(key, shm_size, 0666)) == -1)
     {
@@ -153,7 +169,6 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
                     *(block_ptr + 2) = 'X';
                     break;
                 default:
-                    perror("what the fuck is happenning?");
                     exit(1);
             }
         }

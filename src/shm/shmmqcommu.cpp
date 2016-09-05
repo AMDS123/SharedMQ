@@ -51,7 +51,6 @@ int ShmMQCommu::listen(SHM_CALLBACK *call_back)
         while (1)
         {
             smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
-            printf("what the...\n");
             call_back->do_poll(&buffer_blob);
         }
     }
