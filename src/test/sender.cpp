@@ -20,7 +20,7 @@ int main()
     sleep(10);
     printf("start!\n");
     std::ofstream ofs;
-    ofs.open ("sender.txt", std::ofstream::out | std::ofstream::app);
+    ofs.open ("sender.txt", std::ofstream::out);
 
     srand(time(NULL));
 

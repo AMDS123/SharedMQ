@@ -1,22 +1,16 @@
 #include "shmmqprocessor.hpp"
+#include "errors.hpp"
 
 ShmMqProcessor::ShmMqProcessor(const char *key_path, int id, unsigned shmsize, const char *fifo_path)
 {
     shmmq = new ShmMQ(key_path, id, shmsize);
     if (access(fifo_path, F_OK) == -1)
     {
-        if (mkfifo(fifo_path, 0666) < 0)
-        {
-            perror("mkfifo error.");
-            exit(1);
-        }
+        int ret = mkfifo(fifo_path, 0666);
+        exit_if(ret < 0, "mkfifo");
     }
     notify_fd = open(fifo_path, O_RDWR, 0666);
-    if (notify_fd == -1)
-    {   
-        perror("open fifo error.");
-        exit(1);
-    }
+    exit_if(notify_fd == -1, "open fifo");
 }
 
 ShmMqProcessor::~ShmMqProcessor()
@@ -32,10 +26,9 @@ void ShmMqProcessor::debug()
 
 void ShmMqProcessor::notify()
 {
-    if (write(notify_fd, "!", 1) < 0)
+    if(write(notify_fd, "!", 1) < 0)
     {
-        perror("notify error.");
-        exit(1);
+        TELL_ERROR("notify error.");
     }
 }
 
@@ -52,12 +45,10 @@ int ShmMqProcessor::consume(void *buffer, unsigned buffer_size, unsigned &data_l
     char temp_buffer;
     if (read(notify_fd, &temp_buffer, 1) < 0)
     {
-        perror("read notify error.");
-        exit(1);
+        TELL_ERROR("read notify error.");
     }
     int ret;
     ret = shmmq->dequeue(buffer, buffer_size, data_len);
-    printf("->data_len = %u\n", data_len);
     return ret;
 }
 

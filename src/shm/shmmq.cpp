@@ -1,4 +1,5 @@
 #include "shmmq.hpp"
+#include "errors.hpp"
 
 #include <unistd.h>
 #include <fstream>
@@ -6,15 +7,12 @@
 
 void ShmMQ::init(bool isSender)
 {
-    if ((shm_mem = shmat(shmid, NULL, 0)) == NULL)
-    {
-        perror("shmget error.");
-        exit(1);
-    }
+    shm_mem = shmat(shmid, NULL, 0);
+    exit_if(shm_mem == NULL, "shmat");
 
     shm_stat = (ShmMQStat *)shm_mem;
     shm_mem = (void *)((char *)shm_mem + sizeof(ShmMQStat));
-    
+
     head_ptr = (unsigned *)shm_mem;
 
     tail_ptr = head_ptr + 1;
@@ -26,65 +24,45 @@ void ShmMQ::init(bool isSender)
     {
         *head_ptr = 0;
         *tail_ptr = 0;
-    }
 
-    if (access("/tmp/shmmq", F_OK) == -1)
-    {
-        if (mkdir("/tmp/shmmq", S_IREAD | S_IWRITE | S_IEXEC) == -1)
+        if (access("/tmp/shmmq", F_OK) == -1)
         {
-            perror("mkdir");
+            if (mkdir("/tmp/shmmq", S_IREAD | S_IWRITE | S_IEXEC) == -1)
+            {
+                TELL_ERROR("mkdir for /tmp/shmmq");
+            }
         }
-    }
 
-    std::ofstream ofs;
-    ofs.open ("/tmp/shmmq/shmid", std::ofstream::out);
-    ofs << shmid;
-    ofs.close();
+        std::ofstream ofs;
+        ofs.open("/tmp/shmmq/shmid", std::ofstream::out);
+        ofs << shmid;
+        ofs.close();
+    }
 }
 
 ShmMQ::ShmMQ(const char *path, int id, size_t shm_size)
 {
     key_t key = ftok(path, id);
-    if (key == (key_t)-1)
-    {
-        perror("ftok key error.");
-        exit(1);
-    }
+    exit_if(key == (key_t)-1, "ftok key");
     
     this->shm_size = shm_size;
 
     if ((shmid = shmget(key, shm_size, 0666)) == -1)
     {
-        if ((shmid = shmget(key, shm_size, IPC_CREAT | 0666)) == -1)
-        {
-            perror("shmget error.");
-            exit(1);
-        }
-        else
-        {
-            //I am sender.
-            printf("I am sender.\n");
-            init();
-        }
+        shmid = shmget(key, shm_size, IPC_CREAT | 0666);
+        exit_if(shmid == -1, "shmget");
+        //sender
+        init();
     }
     else
     {
-        //I am receiver.
-        printf("I am receiver.\n");
+        //receiver
         init(false);
     }
 }
 
 ShmMQ::~ShmMQ()
 {
-    /*
-    int ret;
-    if ((ret = shmctl(shmid, IPC_RMID, 0)) < 0)
-    {
-        perror("shmctl error.");
-        exit(1);
-    }
-    */
 }
 
 void ShmMQ::debug()
@@ -100,12 +78,12 @@ void ShmMQ::debug()
 
 int ShmMQ::enqueue(const void *data, unsigned data_len)
 {
-    if (data_len == 0)
+    unsigned head = *head_ptr, tail = *tail_ptr;   
+    if (!do_check(head, tail))
     {
-        perror("fuck off.");
-        return -1;
+        TELL_ERROR("head: %d, tail: %d, check fail ", head, tail);
+        return QUEUE_ERR_CHECKHT;
     }
-    unsigned head = *head_ptr, tail = *tail_ptr;
 
     unsigned free_len = head <= tail ? block_size - tail + head: head - tail;
     unsigned tail_2_end_len = block_size - tail;
@@ -118,8 +96,8 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
     //head = tail + 1: full
     if (total_len >= free_len)
     {
-        perror("no space to enqueue data");
-        exit(1);
+        TELL_ERROR("no space to enqueue data");
+        return QUEUE_ERR_FULL;
     }
 
     char msg_head[MSG_HEAD_LEN] = {};
@@ -184,16 +162,21 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
         *((unsigned *)(block_ptr + leave_msg_head_len + data_len)) = BOUND_VALUE;
         *tail_ptr = leave_msg_head_len + data_len + BOUND_VALUE_LEN;
     }
-    return 1;
+    return 0;
 }
 
 int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
 {
     unsigned head = *head_ptr, tail = *tail_ptr;
+    if (!do_check(head, tail))
+    {
+        TELL_ERROR("head: %d, tail: %d, check fail ", head, tail);
+        return QUEUE_ERR_CHECKHT;
+    }
     if (head == tail)
     {
-        perror("shm empty error.");
-        exit(1);
+        TELL_ERROR("shm empty");
+        return QUEUE_ERR_EMPTY;
     }
     unsigned used_len = head < tail ? tail - head: block_size + tail - head;
     //copy msg_head out first
@@ -218,19 +201,19 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
     unsigned total_len = *((unsigned *)(msg_head + BOUND_VALUE_LEN));
     if (sentinel_head != BOUND_VALUE)
     {
-        perror("sentinel check error.");
-        exit(1);
+        TELL_ERROR("sentinel check error.");
+        return QUEUE_ERR_CHECKSEN;
     }
     if (total_len > used_len)
     {
-        perror("mem is fuck up.");
-        exit(1);
+        TELL_ERROR("mem is fuck up.");
+        return QUEUE_ERR_MEMESS;
     }
     data_len = total_len - MSG_HEAD_LEN;
     if (data_len > buffer_size)
     {
-        perror("holly shit...");
-        exit(1);
+        TELL_ERROR("user buffer overflow.");
+        return QUEUE_ERR_OTFBUFF;
     }
 
     //data is in [head, ...)
@@ -252,8 +235,8 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
     unsigned sentinel_tail = *((unsigned *)((char *)buffer + data_len));
     if (sentinel_tail != BOUND_VALUE)
     {
-        perror("sentinel check error.");
-        exit(1);
+        TELL_ERROR("sentinel check error.");
+        return QUEUE_ERR_CHECKSEN;
     }
-    return 1;
+    return 0;
 }

@@ -17,7 +17,7 @@ class Client: public SHM_CALLBACK
 public:
     Client()
     {
-        ofs.open ("receiver.txt", std::ofstream::out | std::ofstream::app);
+        ofs.open ("receiver.txt", std::ofstream::out);
     }
 
     ~Client()

@@ -4,11 +4,11 @@ SUBDIRS = util \
 		  shm \
 		  test
 
-ROOT_DIR=$(shell pwd)/
+ROOT_DIR=$(shell pwd)
 
 INC = -I$(ROOT_DIR)/../include/shm -I$(ROOT_DIR)/../include/util/
 
-OBJS = $(ROOT_DIR)/shm/shmmq.o $(ROOT_DIR)/shm/shmmqprocessor.o $(ROOT_DIR)/shm/shmmqcommu.o $(ROOT_DIR)/util/configreader.o
+OBJS = $(ROOT_DIR)/shm/shmmq.o $(ROOT_DIR)/shm/shmmqprocessor.o $(ROOT_DIR)/shm/shmmqcommu.o $(ROOT_DIR)/util/configreader.o $(ROOT_DIR)/util/errors.o
 
 export CXX INC OBJS
 

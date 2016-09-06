@@ -5,7 +5,7 @@
 #include <sys/shm.h>
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 struct ShmMQStat
 {
@@ -25,6 +25,11 @@ public:
 
 private:
     void init(bool isSender = true);
+
+    bool do_check(unsigned head, unsigned tail)
+    {
+        return head < block_size && tail < block_size;
+    }
 
     int shmid;
     size_t shm_size;
