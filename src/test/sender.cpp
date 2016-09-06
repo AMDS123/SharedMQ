@@ -30,12 +30,23 @@ int main()
     }
 
     #define SCALE 100000
+    bool flag = false;
 
     for (int i = 0;i < SCALE; ++i)
     {
         unsigned len = rand() % 10 + 16;
-        smp.sendData(buff, len);
-        ofs << std::string(buff, len) << "+" << getCurrentTimeInMillis() << std::endl;
+        if (smp.sendData(buff, len) == 0)
+        {
+            ofs << std::string(buff, len) << "+" << getCurrentTimeInMillis() << std::endl;
+        }
+        else
+        {
+            if (flag == false)
+            {
+                flag = true;
+                ofs << std::string(buff, len) << "+" << i << " wocao" << std::endl;
+            }
+        }
     }
     ofs.close();
 }

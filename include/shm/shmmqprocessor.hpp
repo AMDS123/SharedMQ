@@ -19,7 +19,7 @@ public:
 
     int produce(const void *data, unsigned data_len);
 
-    int consume(void *buffer, unsigned buffer_size, unsigned &data_len);
+    int consume(void *buffer, unsigned buffer_size, unsigned &data_len, bool firstTime = false);
 
     int get_notify_fd();
 

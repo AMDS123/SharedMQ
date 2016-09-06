@@ -42,15 +42,26 @@ int ShmMQCommu::listen(SHM_CALLBACK *call_back)
 
     struct epoll_event events[1000];
     */
+    int ret;
+
+    FOREVER
+    {
+        ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len, true);
+        if (ret != 0)
+        {
+            break;
+        }
+        call_back->do_poll(&buffer_blob);
+    }
+
     FOREVER
     {
         //int nfds = epoll_wait(poll_fd, events, 1000, 5);
         
         //int ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
         //call_back->do_poll(&buffer_blob);
-        while (1)
+        if (smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len) == 0)
         {
-            smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
             call_back->do_poll(&buffer_blob);
         }
     }

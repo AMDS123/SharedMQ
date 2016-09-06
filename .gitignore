@@ -1,2 +1,4 @@
 *.txt
 file_for_ftok
+*.o
+*.swp

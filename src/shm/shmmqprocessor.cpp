@@ -34,21 +34,22 @@ void ShmMqProcessor::notify()
 
 int ShmMqProcessor::produce(const void *data, unsigned data_len)
 {
-    int ret;
-    ret = shmmq->enqueue(data, data_len);
+    int ret = shmmq->enqueue(data, data_len);
     notify();
     return ret;
 }
 
-int ShmMqProcessor::consume(void *buffer, unsigned buffer_size, unsigned &data_len)
+int ShmMqProcessor::consume(void *buffer, unsigned buffer_size, unsigned &data_len, bool firstTime)
 {
     char temp_buffer;
-    if (read(notify_fd, &temp_buffer, 1) < 0)
+    if (!firstTime)
     {
-        TELL_ERROR("read notify error.");
+        if (read(notify_fd, &temp_buffer, 1) < 0)
+        {
+            TELL_ERROR("read notify error.");
+        }
     }
-    int ret;
-    ret = shmmq->dequeue(buffer, buffer_size, data_len);
+    int ret = shmmq->dequeue(buffer, buffer_size, data_len);
     return ret;
 }
 
