@@ -1,11 +1,20 @@
 #include "shmmqprocessor.hpp"
+#include "configreader.hpp"
 #include "errors.hpp"
 
-ShmMqProcessor::ShmMqProcessor(const char* conf_path, Role role)
+ShmMqProcessor::ShmMqProcessor(const char* conf_path, Role role): notify_fd_handler(NULL)
 {
     shmmq = new ShmMQ(conf_path);
     exit_if(shmmq == NULL, "new ShmMQ");
-    notify_fd_handler = new FifoFd(conf_path, role);
+    const char* notify_select = ConfigReader::getConfigReader(conf_path)->GetString("common", "notify", "fifo").c_str();
+    if (strcmp(notify_select, "fifo") == 0)
+    {
+        notify_fd_handler = new FifoFd(conf_path, role);
+    }
+    else if (strcmp(notify_select, "eventfd") == 0)
+    {
+        notify_fd_handler = NULL;//TODO: new EventFd();
+    }
     exit_if(notify_fd_handler == NULL, "new NotifyFileHandler");
 }
 
