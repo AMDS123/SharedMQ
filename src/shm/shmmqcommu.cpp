@@ -2,16 +2,14 @@
 #include "errors.hpp"
 #include <sys/epoll.h>
 
-ShmMQCommu::ShmMQCommu(const char *conf_path)
+ShmMQCommu::ShmMQCommu(const char *conf_path, Role role)
 {
-    const char *key_path = ConfigReader::getConfigReader(conf_path)->GetString("shm", "keypath", "").c_str();
-    int id = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "id", 1);
+    smp = new ShmMqProcessor(conf_path, role);
+    exit_if(smp == NULL, "new ShmMqProcessor");
     unsigned shmsize = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
-    const char *fifo_path = ConfigReader::getConfigReader(conf_path)->GetString("fifo", "fifopath", "").c_str();
-
-    smp = new ShmMqProcessor(key_path, id, shmsize, fifo_path);
     buffer_blob.capacity = shmsize;
     buffer_blob.data = new char[buffer_blob.capacity];
+    exit_if(buffer_blob.data == NULL, "new blob");
 }
 
 ShmMQCommu::~ShmMQCommu()

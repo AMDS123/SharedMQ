@@ -2,30 +2,20 @@
 #define __SHMMQPROCESS_HEADER__
 
 #include "shmmq.hpp"
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/stat.h>
+#include "notify.hpp"
 
 class ShmMqProcessor
 {
 public:
-    ShmMqProcessor(const char *key_path, int id, unsigned shmsize, const char *fifo_path);
-    
+    ShmMqProcessor(const char* conf_path, Role role);
     ~ShmMqProcessor();
-
-    void notify();
-
-    void debug();
-
-    int produce(const void *data, unsigned data_len);
-
-    int consume(void *buffer, unsigned buffer_size, unsigned &data_len);
-
-    int get_notify_fd();
+    int get_notify_fd() const;
+    int produce(const void* data, unsigned data_len);
+    int consume(void* buffer, unsigned buffer_size, unsigned &data_len);
 
 private:
-    int notify_fd;
-    ShmMQ *shmmq;
+    NotifyFileHandler* notify_fd_handler;
+    ShmMQ* shmmq;
 };
 
 #endif

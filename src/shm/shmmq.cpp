@@ -1,5 +1,6 @@
 #include "shmmq.hpp"
 #include "errors.hpp"
+#include "configreader.hpp"
 
 #include <unistd.h>
 #include <fstream>
@@ -40,9 +41,13 @@ void ShmMQ::init(bool isSender)
     }
 }
 
-ShmMQ::ShmMQ(const char *path, int id, size_t shm_size)
+ShmMQ::ShmMQ(const char *conf_path)
 {
-    key_t key = ftok(path, id);
+    const char *key_path = ConfigReader::getConfigReader(conf_path)->GetString("shm", "keypath", "").c_str();
+    int id = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "id", 1);
+    unsigned shm_size = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
+
+    key_t key = ftok(key_path, id);
     exit_if(key == (key_t)-1, "ftok key");
     
     this->shm_size = shm_size;

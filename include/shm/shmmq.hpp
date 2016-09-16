@@ -5,7 +5,6 @@
 #include <sys/shm.h>
 #include <string.h>
 #include <stdlib.h>
-//#include <stdio.h>
 
 struct ShmMQStat
 {
@@ -16,7 +15,7 @@ struct ShmMQStat
 class ShmMQ
 {
 public:
-    ShmMQ(const char *path, int id, size_t shm_size);
+    ShmMQ(const char *conf_path);
     ~ShmMQ();
 
     int enqueue(const void *data, unsigned data_len);

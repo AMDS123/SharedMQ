@@ -3,6 +3,7 @@
 
 #include "shmmqprocessor.hpp"
 #include "configreader.hpp"
+#include "notify.hpp"
 
 #define FOREVER while (1)
 
@@ -22,7 +23,7 @@ public:
 class ShmMQCommu
 {
 public:
-    ShmMQCommu(const char *conf_path);
+    ShmMQCommu(const char *conf_path, Role role);
     ~ShmMQCommu();
 
     int sendData(const void *data, unsigned data_len);

@@ -8,7 +8,7 @@ ROOT_DIR=$(shell pwd)
 
 INC = -I$(ROOT_DIR)/../include/shm -I$(ROOT_DIR)/../include/util/
 
-OBJS = $(ROOT_DIR)/shm/shmmq.o $(ROOT_DIR)/shm/shmmqprocessor.o $(ROOT_DIR)/shm/shmmqcommu.o $(ROOT_DIR)/util/configreader.o $(ROOT_DIR)/util/errors.o
+OBJS = $(ROOT_DIR)/shm/shmmq.o $(ROOT_DIR)/shm/shmmqprocessor.o $(ROOT_DIR)/shm/shmmqcommu.o $(ROOT_DIR)/util/configreader.o $(ROOT_DIR)/util/errors.o $(ROOT_DIR)/util/notify.o
 
 export CXX INC OBJS
 

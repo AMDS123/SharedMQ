@@ -1,4 +1,5 @@
 #include "shmmqcommu.hpp"
+#include "notify.hpp"
 #include <fstream>
 #include <sys/time.h>
 #include <time.h>
@@ -17,7 +18,7 @@ char buff[2600];
 
 int main()
 {
-    ShmMQCommu smp("../../conf/test.ini");
+    ShmMQCommu smp("../../conf/test.ini", WRITER);
     printf("start!\n");
     std::ofstream ofs;
     ofs.open ("sender.txt", std::ofstream::out);

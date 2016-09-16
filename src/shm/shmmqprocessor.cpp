@@ -1,56 +1,36 @@
 #include "shmmqprocessor.hpp"
 #include "errors.hpp"
 
-ShmMqProcessor::ShmMqProcessor(const char *key_path, int id, unsigned shmsize, const char *fifo_path)
+ShmMqProcessor::ShmMqProcessor(const char* conf_path, Role role)
 {
-    shmmq = new ShmMQ(key_path, id, shmsize);
-    if (access(fifo_path, F_OK) == -1)
-    {
-        int ret = mkfifo(fifo_path, 0666);
-        exit_if(ret < 0, "mkfifo");
-    }
-    notify_fd = open(fifo_path, O_RDWR, 0666);
-    exit_if(notify_fd == -1, "open fifo");
+    shmmq = new ShmMQ(conf_path);
+    exit_if(shmmq == NULL, "new ShmMQ");
+    notify_fd_handler = new FifoFd(conf_path, role);
+    exit_if(notify_fd_handler == NULL, "new NotifyFileHandler");
 }
 
 ShmMqProcessor::~ShmMqProcessor()
 {
     delete shmmq;
-    close(notify_fd);
+    delete notify_fd_handler;
 }
 
-void ShmMqProcessor::debug()
+int ShmMqProcessor::get_notify_fd() const
 {
-    shmmq->debug();
-}
-
-void ShmMqProcessor::notify()
-{
-    if(write(notify_fd, "!", 1) < 0)
-    {
-        TELL_ERROR("notify error.");
-    }
+    return notify_fd_handler->get_notify_fd();
 }
 
 int ShmMqProcessor::produce(const void *data, unsigned data_len)
 {
     int ret = shmmq->enqueue(data, data_len);
-    notify();
+    notify_fd_handler->notify_event();
     return ret;
 }
 
 int ShmMqProcessor::consume(void *buffer, unsigned buffer_size, unsigned &data_len)
 {
     char temp_buffer;
-    if (read(notify_fd, &temp_buffer, 1) < 0)
-    {
-        TELL_ERROR("read notify error.");
-    }
     int ret = shmmq->dequeue(buffer, buffer_size, data_len);
+    notify_fd_handler->receive_event();
     return ret;
-}
-
-int ShmMqProcessor::get_notify_fd()
-{
-    return notify_fd;
 }

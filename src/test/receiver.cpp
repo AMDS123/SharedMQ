@@ -1,4 +1,5 @@
 #include "shmmqcommu.hpp"
+#include "notify.hpp"
 #include <iostream>
 #include <fstream>
 #include <sys/time.h>
@@ -37,7 +38,7 @@ private:
 
 int main()
 {
-    ShmMQCommu shmmq("../../conf/test.ini");
+    ShmMQCommu shmmq("../../conf/test.ini", READER);
     Client client;
 
     shmmq.listen(&client);
