@@ -47,9 +47,12 @@ public:
 class EventFd: public NotifyFileHandler
 {
 public:
-    EventFd();
+    EventFd(const char *conf_path, Role role);
     virtual int notify_event();
     virtual int receive_event();
+private:
+    ssize_t send_fd(int sockfd, void* data, size_t bytes);
+    ssize_t recv_fd(int sockfd, void *data, size_t types);
 };
 
 #endif

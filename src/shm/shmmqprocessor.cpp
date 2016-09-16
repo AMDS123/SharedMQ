@@ -13,7 +13,7 @@ ShmMqProcessor::ShmMqProcessor(const char* conf_path, Role role): notify_fd_hand
     }
     else if (strcmp(notify_select, "eventfd") == 0)
     {
-        notify_fd_handler = NULL;//TODO: new EventFd();
+        notify_fd_handler = new EventFd(conf_path, role);
     }
     exit_if(notify_fd_handler == NULL, "new NotifyFileHandler");
 }
