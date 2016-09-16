@@ -4,11 +4,10 @@
 
 ShmMQCommu::ShmMQCommu(const char *conf_path)
 {
-    ConfigReader::getConfigReader().Load(conf_path);    
-    const char *key_path = ConfigReader::getConfigReader().GetString("shm", "keypath", "").c_str();
-    int id = ConfigReader::getConfigReader().GetNumber("shm", "id", 1);
-    unsigned shmsize = ConfigReader::getConfigReader().GetNumber("shm", "shmsize", 10240);
-    const char *fifo_path = ConfigReader::getConfigReader().GetString("fifo", "fifopath", "").c_str();
+    const char *key_path = ConfigReader::getConfigReader(conf_path)->GetString("shm", "keypath", "").c_str();
+    int id = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "id", 1);
+    unsigned shmsize = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
+    const char *fifo_path = ConfigReader::getConfigReader(conf_path)->GetString("fifo", "fifopath", "").c_str();
 
     smp = new ShmMqProcessor(key_path, id, shmsize, fifo_path);
     buffer_blob.capacity = shmsize;
