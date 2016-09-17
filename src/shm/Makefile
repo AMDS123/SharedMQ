@@ -6,4 +6,4 @@ clean:
 	rm *.o
 
 %.o: %.cpp
-	$(CXX) $(INC) -c -o $@ $<
+	$(CXX) $(INC) -c -o $@ $< $(LIB)

@@ -1,6 +1,7 @@
 #include "shmmq.hpp"
 #include "errors.hpp"
 #include "configreader.hpp"
+#include "mylog.hpp"
 
 #include <unistd.h>
 #include <fstream>
@@ -30,7 +31,7 @@ void ShmMQ::init(Role role)
         {
             if (mkdir("/tmp/shmmq", S_IREAD | S_IWRITE | S_IEXEC) == -1)
             {
-                TELL_ERROR("mkdir for /tmp/shmmq");
+                MYLOG_ERROR("mkdir for /tmp/shmmq");
             }
         }
 
@@ -57,17 +58,12 @@ ShmMQ::ShmMQ(const char *conf_path, Role role)
         shmid = shmget(key, shm_size, IPC_CREAT | 0666);
         exit_if(shmid == -1, "shmget");
     }
+    MYLOG_INFO("create shmmq ok.");
     init(role);
 }
 
 ShmMQ::~ShmMQ()
 {
-}
-
-void ShmMQ::debug()
-{
-    unsigned head = *head_ptr, tail = *tail_ptr;
-    printf("head = %u, tail = %u\n", head, tail);
 }
 
 #define BOUND_VALUE 0x58505053
@@ -80,7 +76,7 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
     unsigned head = *head_ptr, tail = *tail_ptr;   
     if (!do_check(head, tail))
     {
-        TELL_ERROR("head: %d, tail: %d, check fail ", head, tail);
+        MYLOG_ERROR("head: " << head << ", tail: " << tail << ", check fail.");
         return QUEUE_ERR_CHECKHT;
     }
 
@@ -95,7 +91,7 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
     //head = tail + 1: full
     if (total_len >= free_len)
     {
-        TELL_ERROR("no space to enqueue data");
+        MYLOG_ERROR("no space to enqueue data");
         return QUEUE_ERR_FULL;
     }
 
@@ -169,12 +165,12 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
     unsigned head = *head_ptr, tail = *tail_ptr;
     if (!do_check(head, tail))
     {
-        TELL_ERROR("head: %d, tail: %d, check fail ", head, tail);
+        MYLOG_ERROR("head: " << head << ", tail: " << tail << ", check fail.");
         return QUEUE_ERR_CHECKHT;
     }
     if (head == tail)
     {
-        TELL_ERROR("shm empty");
+        MYLOG_ERROR("shm empty");
         return QUEUE_ERR_EMPTY;
     }
     unsigned used_len = head < tail ? tail - head: block_size + tail - head;
@@ -200,18 +196,18 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
     unsigned total_len = *((unsigned *)(msg_head + BOUND_VALUE_LEN));
     if (sentinel_head != BOUND_VALUE)
     {
-        TELL_ERROR("sentinel check error.");
+        MYLOG_ERROR("sentinel check error.");
         return QUEUE_ERR_CHECKSEN;
     }
     if (total_len > used_len)
     {
-        TELL_ERROR("mem is fuck up.");
+        MYLOG_ERROR("mem is fuck up.");
         return QUEUE_ERR_MEMESS;
     }
     data_len = total_len - MSG_HEAD_LEN;
     if (data_len > buffer_size)
     {
-        TELL_ERROR("user buffer overflow.");
+        MYLOG_ERROR("user buffer overflow.");
         return QUEUE_ERR_OTFBUFF;
     }
 
@@ -234,7 +230,7 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
     unsigned sentinel_tail = *((unsigned *)((char *)buffer + data_len));
     if (sentinel_tail != BOUND_VALUE)
     {
-        TELL_ERROR("sentinel check error.");
+        MYLOG_ERROR("sentinel check error.");
         return QUEUE_ERR_CHECKSEN;
     }
     return 0;

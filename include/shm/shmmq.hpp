@@ -22,7 +22,6 @@ public:
 
     int enqueue(const void *data, unsigned data_len);
     int dequeue(void *buffer, unsigned buffer_size, unsigned &data_len);
-    void debug();
 
 private:
     void init(Role role);

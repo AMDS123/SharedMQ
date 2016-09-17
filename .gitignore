@@ -2,3 +2,4 @@
 file_for_ftok
 *.o
 *.swp
+*.log

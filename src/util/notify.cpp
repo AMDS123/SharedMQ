@@ -1,10 +1,11 @@
 #include "notify.hpp"
 #include "errors.hpp"
 #include "configreader.hpp"
+#include "mylog.hpp"
 
 void HANDLE_SIGPIPE(int signo)
 {
-	TELL_ERROR("receive SIGPIPE signal!");
+	MYLOG_ERROR("receive SIGPIPE signal!");
 }
 
 FifoFd::FifoFd(const char *conf_path, Role role)
@@ -33,7 +34,7 @@ int FifoFd::notify_event()
 	int wn;
     if((wn = write(notify_fd, "!", 1)) < 0)
     {
-        TELL_ERROR("write fifo");
+        MYLOG_ERROR("write fifo");
     }
     return wn;
 }
@@ -44,7 +45,7 @@ int FifoFd::receive_event()
     char temp_buffer;
     if ((rn = read(notify_fd, &temp_buffer, 1)) < 0)
     {
-        TELL_ERROR("read notify");
+        MYLOG_ERROR("read notify");
     }
     return rn;
 }
@@ -106,7 +107,7 @@ int EventFd::notify_event()
     int ret;
     if ((ret = write(notify_fd, &number, sizeof(unsigned long long))) < 0)
     {
-        TELL_ERROR("write eventfd");
+        MYLOG_ERROR("write eventfd");
     }
     return ret;
 }
@@ -117,7 +118,7 @@ int EventFd::receive_event()
     int ret;
     if ((ret = read(notify_fd, &number, sizeof(unsigned long long))) < 0)
     {
-        TELL_ERROR("read eventfd");
+        MYLOG_ERROR("read eventfd");
     }
     return ret;
 }

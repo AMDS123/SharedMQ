@@ -6,11 +6,19 @@ SUBDIRS = util \
 
 ROOT_DIR=$(shell pwd)
 
-INC = -I$(ROOT_DIR)/../include/shm -I$(ROOT_DIR)/../include/util/
+INC = -I$(ROOT_DIR)/../include/shm -I$(ROOT_DIR)/../include/util/ -I/usr/local/include/log4cplus/
 
-OBJS = $(ROOT_DIR)/shm/shmmq.o $(ROOT_DIR)/shm/shmmqprocessor.o $(ROOT_DIR)/shm/shmmqcommu.o $(ROOT_DIR)/util/configreader.o $(ROOT_DIR)/util/errors.o $(ROOT_DIR)/util/notify.o
+LIB = -llog4cplus
 
-export CXX INC OBJS
+OBJS = $(ROOT_DIR)/shm/shmmq.o \
+    $(ROOT_DIR)/shm/shmmqprocessor.o \
+    $(ROOT_DIR)/shm/shmmqcommu.o \
+    $(ROOT_DIR)/util/configreader.o \
+    $(ROOT_DIR)/util/errors.o \
+    $(ROOT_DIR)/util/notify.o \
+    $(ROOT_DIR)/util/mylog.o
+
+export CXX INC OBJS LIB
 
 define make_subdir
  @for subdir in $(SUBDIRS) ; do \
@@ -28,7 +36,7 @@ ECHO:
 	@echo begin compile
 
 %.o: %.cpp
-	$(CXX) $(INC) -c -o $@ $<
+	$(CXX) $(INC) $(LIB) -c -o $@ $<
 
 clean:
 	$(call make_subdir , clean) 
