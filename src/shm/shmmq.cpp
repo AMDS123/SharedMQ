@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sys/stat.h>
 
-void ShmMQ::init(bool isSender)
+void ShmMQ::init(Role role)
 {
     shm_mem = shmat(shmid, NULL, 0);
     exit_if(shm_mem == NULL, "shmat");
@@ -21,7 +21,7 @@ void ShmMQ::init(bool isSender)
     block_ptr = (char *)(tail_ptr + 1);
     block_size = shm_size - sizeof(unsigned) * 2 - sizeof(ShmMQStat);
 
-    if (isSender)
+    if (role == WRITER)
     {
         *head_ptr = 0;
         *tail_ptr = 0;
@@ -41,7 +41,7 @@ void ShmMQ::init(bool isSender)
     }
 }
 
-ShmMQ::ShmMQ(const char *conf_path)
+ShmMQ::ShmMQ(const char *conf_path, Role role)
 {
     const char *key_path = ConfigReader::getConfigReader(conf_path)->GetString("shm", "keypath", "").c_str();
     int id = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "id", 1);
@@ -56,14 +56,8 @@ ShmMQ::ShmMQ(const char *conf_path)
     {
         shmid = shmget(key, shm_size, IPC_CREAT | 0666);
         exit_if(shmid == -1, "shmget");
-        //sender
-        init();
     }
-    else
-    {
-        //receiver
-        init(false);
-    }
+    init(role);
 }
 
 ShmMQ::~ShmMQ()

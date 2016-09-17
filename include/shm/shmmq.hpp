@@ -1,6 +1,8 @@
 #ifndef __SHM_HEADER__
 #define __SHM_HEADER__
 
+#include "notify.hpp"
+
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <string.h>
@@ -15,7 +17,7 @@ struct ShmMQStat
 class ShmMQ
 {
 public:
-    ShmMQ(const char *conf_path);
+    ShmMQ(const char *conf_path, Role role);
     ~ShmMQ();
 
     int enqueue(const void *data, unsigned data_len);
@@ -23,7 +25,7 @@ public:
     void debug();
 
 private:
-    void init(bool isSender = true);
+    void init(Role role);
 
     bool do_check(unsigned head, unsigned tail)
     {
