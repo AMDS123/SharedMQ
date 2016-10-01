@@ -1,12 +1,6 @@
 #include "notify.hpp"
 #include "errors.hpp"
 #include "configreader.hpp"
-#include "mylog.hpp"
-
-void HANDLE_SIGPIPE(int signo)
-{
-	MYLOG_ERROR("receive SIGPIPE signal!");
-}
 
 FifoFd::FifoFd(const char *conf_path, Role role)
 {
@@ -24,7 +18,7 @@ FifoFd::FifoFd(const char *conf_path, Role role)
     else if (role == WRITER)
     {
     	notify_fd = open(fifo_path, O_WRONLY, 0666);
-        signal(SIGPIPE, HANDLE_SIGPIPE);
+        signal(SIGPIPE, SIG_IGN);
     }    
     exit_if(notify_fd == -1, "open fifo");
 }
@@ -34,7 +28,7 @@ int FifoFd::notify_event()
 	int wn;
     if((wn = write(notify_fd, "!", 1)) < 0)
     {
-        MYLOG_ERROR("write fifo");
+        TELL_ERROR("write fifo");
     }
     return wn;
 }
@@ -45,7 +39,7 @@ int FifoFd::receive_event()
     char temp_buffer;
     if ((rn = read(notify_fd, &temp_buffer, 1)) < 0)
     {
-        MYLOG_ERROR("read notify");
+        TELL_ERROR("read notify");
     }
     return rn;
 }
@@ -107,7 +101,7 @@ int EventFd::notify_event()
     int ret;
     if ((ret = write(notify_fd, &number, sizeof(unsigned long long))) < 0)
     {
-        MYLOG_ERROR("write eventfd");
+        TELL_ERROR("write eventfd");
     }
     return ret;
 }
@@ -118,7 +112,7 @@ int EventFd::receive_event()
     int ret;
     if ((ret = read(notify_fd, &number, sizeof(unsigned long long))) < 0)
     {
-        MYLOG_ERROR("read eventfd");
+        TELL_ERROR("read eventfd");
     }
     return ret;
 }

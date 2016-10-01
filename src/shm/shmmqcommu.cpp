@@ -1,15 +1,9 @@
 #include "shmmqcommu.hpp"
 #include "errors.hpp"
-#include "mylog.hpp"
 #include <sys/epoll.h>
 
 ShmMQCommu::ShmMQCommu(const char *conf_path, Role role)
 {
-    //init log
-    const char* log_conf_path = ConfigReader::getConfigReader(conf_path)->GetString("common", "logconf", "log4cplus.cfg").c_str();
-    MyLog::init(log_conf_path, role);
-    MYLOG_INFO("log4cplus init finished.");
-
     smp = new ShmMqProcessor(conf_path, role);
     exit_if(smp == NULL, "new ShmMqProcessor");
     unsigned shmsize = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
@@ -55,7 +49,7 @@ int ShmMQCommu::listen(SHM_CALLBACK *call_back)
     
     this->call_back = call_back;
 
-    MYLOG_INFO("begin to read shmmq.");
+    TELL_ERROR("begin to read shmmq.");
     readDataUntilEmpty();
 
     struct epoll_event events[10];
@@ -64,7 +58,7 @@ int ShmMQCommu::listen(SHM_CALLBACK *call_back)
         int nfds = epoll_wait(poll_fd, events, 10, 5);
         if (nfds == -1)
         {
-            MYLOG_ERROR("epoll_wait.");
+            TELL_ERROR("epoll_wait.");
             continue;
         }
         if (nfds > 0)
@@ -75,7 +69,7 @@ int ShmMQCommu::listen(SHM_CALLBACK *call_back)
             }
             else
             {
-                MYLOG_ERROR("impossible.");
+                TELL_ERROR("impossible.");
             }
         }
     }
