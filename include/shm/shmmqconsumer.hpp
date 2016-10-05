@@ -1,9 +1,7 @@
-#ifndef __SHMMQCOMMU_HEADER__
-#define __SHMMQCOMMU_HEADER__
+#ifndef __SHMMQCONSUMER_HEADER__
+#define __SHMMQCONSUMER_HEADER__
 
-#include "shmmqprocessor.hpp"
-#include "configreader.hpp"
-#include "notify.hpp"
+#include "shmmqoperator.hpp"
 
 #define FOREVER while (1)
 
@@ -20,21 +18,18 @@ public:
     virtual void do_poll(Blob_Type *buffer_blob) = 0;
 };
 
-class ShmMQCommu
+class ShmMQConsumer
 {
 public:
-    ShmMQCommu(const char *conf_path, Role role);
-    ~ShmMQCommu();
-
-    int sendData(const void *data, unsigned data_len);
+    ShmMQConsumer(const char *conf_path);
+    ~ShmMQConsumer();
 
     int listen(SHM_CALLBACK *call_back);
-
+private:
     void readDataUntilEmpty();
 
-private:
     Blob_Type buffer_blob;
-    ShmMqProcessor *smp;
+    ShmMQOperator *shmmq_operator;
     SHM_CALLBACK *call_back;
 };
 

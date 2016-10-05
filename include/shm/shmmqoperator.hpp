@@ -4,11 +4,11 @@
 #include "shmmq.hpp"
 #include "notify.hpp"
 
-class ShmMqProcessor
+class ShmMQOperator
 {
 public:
-    ShmMqProcessor(const char* conf_path, Role role);
-    ~ShmMqProcessor();
+    ShmMQOperator(const char* conf_path, Role role);
+    ~ShmMQOperator();
     int get_notify_fd() const;
     int produce(const void* data, unsigned data_len);
     int consume(void* buffer, unsigned buffer_size, unsigned &data_len);

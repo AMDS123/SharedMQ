@@ -1,5 +1,4 @@
-#include "shmmqcommu.hpp"
-#include "notify.hpp"
+#include "shmmqproducer.hpp"
 #include <fstream>
 #include <sys/time.h>
 #include <time.h>
@@ -18,7 +17,7 @@ char buff[2600];
 
 int main()
 {
-    ShmMQCommu smp("../../conf/test.ini", WRITER);
+    ShmMQProducer shmwriter("../../conf/test.ini");
     printf("start!\n");
     std::ofstream ofs;
     ofs.open ("sender.txt", std::ofstream::out);
@@ -36,7 +35,7 @@ int main()
     for (int i = 0;i < SCALE; ++i)
     {
         unsigned len = rand() % 10 + 16;
-        if (smp.sendData(buff, len) == 0)
+        if (shmwriter.sendData(buff, len) == 0)
         {
             std::cout << "send data" << std::endl;
             ofs << std::string(buff, len) << "+" << getCurrentTimeInMillis() << std::endl;

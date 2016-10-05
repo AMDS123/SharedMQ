@@ -1,35 +1,30 @@
-#include "shmmqcommu.hpp"
+#include "shmmqconsumer.hpp"
 #include "errors.hpp"
+#include "configreader.hpp"
 #include <sys/epoll.h>
 
-ShmMQCommu::ShmMQCommu(const char *conf_path, Role role)
+ShmMQConsumer::ShmMQConsumer(const char *conf_path)
 {
-    smp = new ShmMqProcessor(conf_path, role);
-    exit_if(smp == NULL, "new ShmMqProcessor");
+    shmmq_operator = new ShmMQOperator(conf_path, READER);
+    exit_if(shmmq_operator == NULL, "new ShmMQOperator");
     unsigned shmsize = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
     buffer_blob.capacity = shmsize;
     buffer_blob.data = new char[buffer_blob.capacity];
     exit_if(buffer_blob.data == NULL, "new blob");
 }
 
-ShmMQCommu::~ShmMQCommu()
+ShmMQConsumer::~ShmMQConsumer()
 {
     delete buffer_blob.data;
-    delete smp;
+    delete shmmq_operator;
 }
 
-int ShmMQCommu::sendData(const void *data, unsigned data_len)
-{
-    int ret = smp->produce(data, data_len);
-    return ret;
-}
-
-void ShmMQCommu::readDataUntilEmpty()
+void ShmMQConsumer::readDataUntilEmpty()
 {
     int ret;
     FOREVER
     {
-        ret = smp->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
+        ret = shmmq_operator->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
         if (ret != 0)
         {
             break;
@@ -38,12 +33,12 @@ void ShmMQCommu::readDataUntilEmpty()
     }
 }
 
-int ShmMQCommu::listen(SHM_CALLBACK *call_back)
+int ShmMQConsumer::listen(SHM_CALLBACK *call_back)
 {
     int poll_fd = epoll_create(10);
     struct epoll_event ev;
     ev.events = EPOLLIN | EPOLLET;
-    ev.data.fd = smp->get_notify_fd();
+    ev.data.fd = shmmq_operator->get_notify_fd();
     int ctl_ret = epoll_ctl(poll_fd, EPOLL_CTL_ADD, ev.data.fd, &ev);
     exit_if(ctl_ret < 0, "epoll_ctl");
     
@@ -63,7 +58,7 @@ int ShmMQCommu::listen(SHM_CALLBACK *call_back)
         }
         if (nfds > 0)
         {
-            if (events[0].data.fd == smp->get_notify_fd())
+            if (events[0].data.fd == shmmq_operator->get_notify_fd())
             {
                 readDataUntilEmpty();
             }
