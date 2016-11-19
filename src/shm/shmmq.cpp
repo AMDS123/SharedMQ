@@ -157,9 +157,10 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
     return 0;
 }
 
-int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
+int ShmMQ::peek(void *buffer, unsigned buffer_size, unsigned &data_len)
 {
     unsigned head = *head_ptr, tail = *tail_ptr;
+    new_head_addr = 0;
     if (!do_check(head, tail))
     {
         TELL_ERROR("head: %u, tail: %u, check fail.", head, tail);
@@ -212,7 +213,7 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
     if (head + data_len < block_size)
     {
         memcpy(buffer, block_ptr + head, data_len);
-        *head_ptr = head + data_len;
+        new_head_addr = head + data_len;
     }
     //data is sub in [*block_ptr, tail) and sub in [head, ...)
     else
@@ -221,14 +222,33 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)
         unsigned second_data_len = data_len - first_data_len;
         memcpy(buffer, block_ptr + head, first_data_len);
         memcpy((char *)buffer + first_data_len, block_ptr, second_data_len);
-        *head_ptr = second_data_len;
+        new_head_addr = second_data_len;
     }
     data_len -= BOUND_VALUE_LEN;
     unsigned sentinel_tail = *((unsigned *)((char *)buffer + data_len));
     if (sentinel_tail != BOUND_VALUE)
     {
         TELL_ERROR("sentinel check error.");
+        new_head_addr = 0;
         return QUEUE_ERR_CHECKSEN;
     }
     return 0;
+}
+
+void ShmMQ::remove()
+{
+    if (new_head_addr)
+    {
+        *head_ptr = new_head_addr;
+    }
+}
+
+int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)//no use now...
+{
+    int ret = peek(buffer, buffer_size, data_len);
+    if (ret == 0)
+    {
+        remove();
+    }
+    return ret;
 }

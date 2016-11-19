@@ -21,7 +21,20 @@ public:
     ~ShmMQ();
 
     int enqueue(const void *data, unsigned data_len);
-    int dequeue(void *buffer, unsigned buffer_size, unsigned &data_len);
+    /*  USAGE to get data from shm:
+    ----------------------------------------------
+        peek(buffer, buffer_size, data_len);
+        handle data
+        remove();
+    ----------------------------------------------
+        OR:
+        dequeue(buffer, buffer_size, data_len);
+        handle data
+    ----------------------------------------------
+    */
+    int peek(void *buffer, unsigned buffer_size, unsigned &data_len);
+    void remove();
+    int dequeue(void *buffer, unsigned buffer_size, unsigned &data_len);//no use now...
 
 private:
     void init(Role role);
@@ -41,6 +54,8 @@ private:
 
     unsigned block_size;
     char *block_ptr;
+
+    unsigned new_head_addr;
 };
 
 #define BOUND_VALUE 0x58505053

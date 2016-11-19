@@ -1,5 +1,5 @@
-SENDER = sender
-RECEIVER = receiver
+SENDER = sender.test
+RECEIVER = receiver.test
 
 all: $(SENDER) $(RECEIVER)
 
