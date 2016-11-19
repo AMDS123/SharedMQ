@@ -1,8 +1,6 @@
 CXX = g++
 
-SUBDIRS = util \
-		  shm \
-		  test
+SUBDIRS = util shm test
 
 ROOT_DIR=$(shell pwd)
 
