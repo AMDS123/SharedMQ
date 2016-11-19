@@ -8,13 +8,10 @@ ROOT_DIR=$(shell pwd)
 
 INC = -I$(ROOT_DIR)/../include/shm -I$(ROOT_DIR)/../include/util/
 
-OBJS = $(ROOT_DIR)/shm/shmmq.o \
-    $(ROOT_DIR)/shm/shmmqoperator.o \
-    $(ROOT_DIR)/shm/shmmqproducer.o \
-    $(ROOT_DIR)/shm/shmmqconsumer.o \
-    $(ROOT_DIR)/util/configreader.o \
-    $(ROOT_DIR)/util/errors.o \
-    $(ROOT_DIR)/util/notify.o \
+SHM_OBJS = $(addsuffix .o, $(basename $(wildcard $(ROOT_DIR)/shm/*.cpp)))
+UTIL_OBJS = $(addsuffix .o, $(basename $(wildcard $(ROOT_DIR)/util/*.cpp)))
+
+OBJS = $(SHM_OBJS) $(UTIL_OBJS)
 
 export CXX INC OBJS LIB
 
@@ -30,7 +27,7 @@ TARGET_LIB = libshmmq.a
 
 all: $(SUBDIRS) $(TARGET_LIB)
 
-install: 
+install:
 	mkdir -p /usr/local/include/shmmq/
 	cp -f $(HEADER_FILES) /usr/local/include/shmmq/
 	cp -f $(TARGET_LIB) /usr/local/lib/
@@ -53,6 +50,6 @@ $(TARGET_LIB): $(OBJS)
 	$(CXX) $(INC) $(LIB) -c -o $@ $<
 
 clean:
-	$(call make_subdir , clean) 
+	$(call make_subdir , clean)
 	rm -f $(TARGET_LIB)
 	../tools/deleteshm.sh
