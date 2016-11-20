@@ -8,6 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define BOUND_VALUE 0x58505053
+#define BOUND_VALUE_LEN 4
+
+#define MSG_HEAD_LEN (sizeof(unsigned) + BOUND_VALUE_LEN)
+
 struct ShmMQStat
 {
     unsigned msg_count;
@@ -33,7 +38,7 @@ public:
     ----------------------------------------------
     */
     int peek(void *buffer, unsigned buffer_size, unsigned &data_len);
-    void remove();
+    void remove(void);
     int dequeue(void *buffer, unsigned buffer_size, unsigned &data_len);//no use now...
 
 private:

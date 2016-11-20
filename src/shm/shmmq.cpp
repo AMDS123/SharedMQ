@@ -63,11 +63,6 @@ ShmMQ::~ShmMQ()
 {
 }
 
-#define BOUND_VALUE 0x58505053
-#define BOUND_VALUE_LEN 4
-
-#define MSG_HEAD_LEN (sizeof(unsigned) + BOUND_VALUE_LEN)
-
 int ShmMQ::enqueue(const void *data, unsigned data_len)
 {
     unsigned head = *head_ptr, tail = *tail_ptr;   
@@ -235,7 +230,7 @@ int ShmMQ::peek(void *buffer, unsigned buffer_size, unsigned &data_len)
     return 0;
 }
 
-void ShmMQ::remove()
+void ShmMQ::remove(void)
 {
     if (new_head_addr)
     {

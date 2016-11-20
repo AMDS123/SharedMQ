@@ -36,9 +36,13 @@ int ShmMQOperator::produce(const void *data, unsigned data_len)
     return ret;
 }
 
-int ShmMQOperator::consume(void *buffer, unsigned buffer_size, unsigned &data_len)
+int ShmMQOperator::begin_consume(void *buffer, unsigned buffer_size, unsigned &data_len)
 {
     int ret = shmmq->dequeue(buffer, buffer_size, data_len);
-    notify_fd_handler->receive_event();
     return ret;
+}
+
+void ShmMQOperator::finish_consume(void)
+{
+    notify_fd_handler->receive_event();
 }

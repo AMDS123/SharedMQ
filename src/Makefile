@@ -49,5 +49,5 @@ $(TARGET_LIB): $(OBJS)
 
 clean:
 	$(call make_subdir , clean)
-	rm -f $(TARGET_LIB)
-	../tools/deleteshm.sh
+	-rm -f $(TARGET_LIB)
+	-../tools/deleteshm.sh

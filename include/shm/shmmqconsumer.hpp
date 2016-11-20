@@ -26,7 +26,7 @@ public:
 
     int listen(SHM_CALLBACK *call_back);
 private:
-    void readDataUntilEmpty();
+    void readDataUntilEmpty(void);
 
     Blob_Type buffer_blob;
     ShmMQOperator *shmmq_operator;

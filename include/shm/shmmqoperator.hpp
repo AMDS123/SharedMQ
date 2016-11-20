@@ -11,7 +11,8 @@ public:
     ~ShmMQOperator();
     int get_notify_fd() const;
     int produce(const void* data, unsigned data_len);
-    int consume(void* buffer, unsigned buffer_size, unsigned &data_len);
+    int begin_consume(void* buffer, unsigned buffer_size, unsigned &data_len);
+    void finish_consume(void);
 
 private:
     NotifyFileHandler* notify_fd_handler;

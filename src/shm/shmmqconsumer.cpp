@@ -19,17 +19,18 @@ ShmMQConsumer::~ShmMQConsumer()
     delete shmmq_operator;
 }
 
-void ShmMQConsumer::readDataUntilEmpty()
+void ShmMQConsumer::readDataUntilEmpty(void)
 {
     int ret;
     FOREVER
     {
-        ret = shmmq_operator->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
+        ret = shmmq_operator->begin_consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len);
         if (ret != 0)
         {
             break;
         }
         call_back->do_poll(&buffer_blob);
+        shmmq_operator->finish_consume();
     }
 }
 
