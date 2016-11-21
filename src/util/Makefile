@@ -1,4 +1,4 @@
-CUR_OBJS = ${patsubst %.cpp, %.o, ${wildcard *.cpp}}
+CUR_OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 
 all:$(CUR_OBJS)
 
