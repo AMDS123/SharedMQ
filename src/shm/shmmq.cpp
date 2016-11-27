@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sys/stat.h>
 
-void ShmMQ::init(Role role)
+void ShmMQ::init(bool first_use)
 {
     shm_mem = shmat(shmid, NULL, 0);
     exit_if(shm_mem == NULL, "shmat");
@@ -20,7 +20,7 @@ void ShmMQ::init(Role role)
     block_ptr = (char *)(tail_ptr + 1);
     block_size = shm_size - sizeof(unsigned) * 2 - sizeof(ShmMQStat);
 
-    if (role == WRITER)
+    if (first_use)
     {
         *head_ptr = 0;
         *tail_ptr = 0;
@@ -40,7 +40,7 @@ void ShmMQ::init(Role role)
     }
 }
 
-ShmMQ::ShmMQ(const char *conf_path, Role role)
+ShmMQ::ShmMQ(const char *conf_path)
 {
     const char *key_path = ConfigReader::getConfigReader(conf_path)->GetString("shm", "keypath", "").c_str();
     int id = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "id", 1);
@@ -51,12 +51,15 @@ ShmMQ::ShmMQ(const char *conf_path, Role role)
     
     this->shm_size = shm_size;
 
+    bool first_use = false;
+
     if ((shmid = shmget(key, shm_size, 0666)) == -1)
     {
         shmid = shmget(key, shm_size, IPC_CREAT | 0666);
+        first_use = true;
         exit_if(shmid == -1, "shmget");
     }
-    init(role);
+    init(first_use);
     set_endian();
 }
 

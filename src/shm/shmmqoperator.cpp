@@ -4,7 +4,7 @@
 
 ShmMQOperator::ShmMQOperator(const char* conf_path, Role role): notify_fd_handler(NULL)
 {
-    shmmq = new ShmMQ(conf_path, role);
+    shmmq = new ShmMQ(conf_path);
     exit_if(shmmq == NULL, "new ShmMQ");
     const char* notify_select = ConfigReader::getConfigReader(conf_path)->GetString("common", "notify", "fifo").c_str();
     if (strcmp(notify_select, "fifo") == 0)
