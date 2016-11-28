@@ -8,17 +8,11 @@
 
 #define BIG_ENDIAN_VALUE 0
 #define LITTLE_ENDIAN_VALUE 1
-
 #define BEGIN_BOUND_VALUE 0x3d45425e//little-endian of: "^BE="
 #define END_BOUND_VALUE 0x24444e3d//little-endian of: "=ND$"
 #define BOUND_VALUE_LEN 4
 
 #define MSG_HEAD_LEN (sizeof(unsigned) + BOUND_VALUE_LEN)
-
-struct ShmMQStat
-{
-    unsigned long flag;
-};
 
 class ShmMQ
 {
@@ -57,13 +51,6 @@ private:
         endian_solution = *p == 0x00? BIG_ENDIAN_VALUE: LITTLE_ENDIAN_VALUE;
     }
 
-    void clear();
-
-    bool is_begin_bound(unsigned pos);
-    bool is_end_bound(unsigned pos);
-
-    void reset();
-
     char endian_solution;
 
     int shmid;
@@ -72,7 +59,6 @@ private:
 
     unsigned *head_ptr;
     unsigned *tail_ptr;
-    ShmMQStat *shm_stat;
 
     unsigned block_size;
     char *block_ptr;

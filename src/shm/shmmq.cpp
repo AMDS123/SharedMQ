@@ -10,21 +10,16 @@ void ShmMQ::init(bool first_use)
     shm_mem = shmat(shmid, NULL, 0);
     exit_if(shm_mem == NULL, "shmat");
 
-    shm_stat = (ShmMQStat *)shm_mem;
-    shm_mem = (void *)((char *)shm_mem + sizeof(ShmMQStat));
-
     head_ptr = (unsigned *)shm_mem;
-
     tail_ptr = head_ptr + 1;
 
     block_ptr = (char *)(tail_ptr + 1);
-    block_size = shm_size - sizeof(unsigned) * 2 - sizeof(ShmMQStat);
+    block_size = shm_size - sizeof(unsigned) * 2;
 
     if (first_use)
     {
         *head_ptr = 0;
         *tail_ptr = 0;
-
         if (access("/tmp/shmmq", F_OK) == -1)
         {
             if (mkdir("/tmp/shmmq", S_IREAD | S_IWRITE | S_IEXEC) == -1)
@@ -32,7 +27,6 @@ void ShmMQ::init(bool first_use)
                 TELL_ERROR("mkdir for /tmp/shmmq");
             }
         }
-
         std::ofstream ofs;
         ofs.open("/tmp/shmmq/shmid", std::ofstream::out);
         ofs << shmid;
@@ -75,10 +69,8 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
         TELL_ERROR("head: %u, tail: %u, check fail.", head, tail);
         return QUEUE_ERR_CHECKHT;
     }
-
     unsigned free_len = head <= tail ? block_size - tail + head: head - tail;
     unsigned tail_2_end_len = block_size - tail;
-
     unsigned total_len = MSG_HEAD_LEN + data_len + BOUND_VALUE_LEN;
 
     //Note: should leave 1 Byte to be a sentinel
@@ -187,166 +179,6 @@ int ShmMQ::enqueue(const void *data, unsigned data_len)
     return 0;
 }
 
-void ShmMQ::clear()
-{
-    *head_ptr = 0;
-    *tail_ptr = 0;
-    //ShmMQStat need to be updated.
-    TELL_ERROR("clear shm.");
-}
-
-bool ShmMQ::is_begin_bound(unsigned pos)
-{
-    if (endian_solution == LITTLE_ENDIAN_VALUE)
-    {
-        if (*(block_ptr + pos) == '^' &&
-        *(block_ptr + ((pos + 1) % block_size)) == 'B' &&
-        *(block_ptr + ((pos + 2) % block_size)) == 'E' &&
-        *(block_ptr + ((pos + 3) % block_size)) == '=')
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if (*(block_ptr + pos) == '=' &&
-        *(block_ptr + ((pos + 1) % block_size)) == 'E' &&
-        *(block_ptr + ((pos + 2) % block_size)) == 'B' &&
-        *(block_ptr + ((pos + 3) % block_size)) == '^')
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool ShmMQ::is_end_bound(unsigned pos)
-{
-    if (endian_solution == LITTLE_ENDIAN_VALUE)
-    {
-        if (*(block_ptr + pos) == '=' &&
-        *(block_ptr + ((pos + 1) % block_size)) == 'N' &&
-        *(block_ptr + ((pos + 2) % block_size)) == 'D' &&
-        *(block_ptr + ((pos + 3) % block_size)) == '$')
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if (*(block_ptr + pos) == '$' &&
-        *(block_ptr + ((pos + 1) % block_size)) == 'D' &&
-        *(block_ptr + ((pos + 2) % block_size)) == 'N' &&
-        *(block_ptr + ((pos + 3) % block_size)) == '=')
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-void ShmMQ::reset()
-{
-    TELL_ERROR("reset shm.");
-    unsigned head = *head_ptr, tail = *tail_ptr;
-    if (head < tail)
-    {
-        while (tail - head > MSG_HEAD_LEN + BOUND_VALUE_LEN)
-        {
-            if (is_begin_bound(head))
-            {
-                char msg_head[MSG_HEAD_LEN] = {};
-                memcpy(msg_head, block_ptr + head, MSG_HEAD_LEN);
-                unsigned data_len = *((unsigned *)(msg_head + BOUND_VALUE_LEN)) - MSG_HEAD_LEN - BOUND_VALUE_LEN;
-
-                unsigned pos = head + MSG_HEAD_LEN + data_len;
-                if (pos + BOUND_VALUE_LEN > tail)
-                {
-                    break;
-                }
-                if (is_end_bound(pos))
-                {
-                    *head_ptr = head;
-                    TELL_ERROR("reset *head_ptr = %u", head);
-                    return ;
-                }
-            }
-            else
-            {
-                ++head;
-            }
-        }
-        clear();
-    }
-    else if (head > tail)
-    {
-        while (head < block_size)
-        {
-            if (block_size - head + tail <= MSG_HEAD_LEN + BOUND_VALUE_LEN)
-            {
-                clear();
-                return ;
-            }
-            if (is_begin_bound(head))
-            {
-                char msg_head[MSG_HEAD_LEN] = {};
-                if (head + MSG_HEAD_LEN <= block_size)
-                {
-                    memcpy(msg_head, block_ptr + head, MSG_HEAD_LEN);
-                }
-                else
-                {
-                    unsigned first_msg_head_len = block_size - head;
-                    unsigned second_msg_head_len = MSG_HEAD_LEN - first_msg_head_len;
-                    memcpy(msg_head, block_ptr + head, first_msg_head_len);
-                    memcpy(msg_head + first_msg_head_len, block_ptr, second_msg_head_len);
-                }
-
-                unsigned data_len = *((unsigned *)(msg_head + BOUND_VALUE_LEN)) - MSG_HEAD_LEN - BOUND_VALUE_LEN;
-                unsigned pos = (head + MSG_HEAD_LEN + data_len) % block_size;
-                if ((pos + BOUND_VALUE_LEN) % block_size > tail)
-                {
-                    clear();
-                    return ;
-                }
-                if (is_end_bound(pos))
-                {
-                    *head_ptr = head;
-                    TELL_ERROR("reset *head_ptr = %u", head);
-                    return ;
-                }
-            }
-        }
-        head = 0;
-        while (tail - head > MSG_HEAD_LEN + BOUND_VALUE_LEN)
-        {
-            if (is_begin_bound(head))
-            {
-                char msg_head[MSG_HEAD_LEN] = {};
-                memcpy(msg_head, block_ptr + head, MSG_HEAD_LEN);
-                unsigned data_len = *((unsigned *)(msg_head + BOUND_VALUE_LEN)) - MSG_HEAD_LEN - BOUND_VALUE_LEN;
-
-                unsigned pos = head + data_len;
-                if (pos + BOUND_VALUE_LEN > tail)
-                {
-                    break;
-                }
-                if (is_end_bound(pos))
-                {
-                    *head_ptr = head;
-                    TELL_ERROR("reset *head_ptr = %u", head);
-                    return ;
-                }
-            }
-            else
-            {
-                ++head;
-            }
-        }
-        clear();
-    }
-}
-
 int ShmMQ::peek(void *buffer, unsigned buffer_size, unsigned &data_len)
 {
     unsigned head = *head_ptr, tail = *tail_ptr;
@@ -399,7 +231,6 @@ int ShmMQ::peek(void *buffer, unsigned buffer_size, unsigned &data_len)
         TELL_ERROR("user buffer overflow.");
         return QUEUE_ERR_OTFBUFF;
     }
-
     //data is in [head, ...)
     if (head + data_len < block_size)
     {
@@ -431,6 +262,7 @@ void ShmMQ::remove(void)
     if (new_head_addr)
     {
         *head_ptr = new_head_addr;
+        new_head_addr = 0;
     }
 }
 
