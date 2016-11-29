@@ -1,4 +1,4 @@
-#include "shmmqconsumer.hpp"
+#include "singleconsumer.hpp"
 #include <iostream>
 #include <fstream>
 #include <sys/time.h>
@@ -37,7 +37,7 @@ private:
 
 int main()
 {
-    ShmMQConsumer shmreader("../../conf/test.ini");
+    Consumer shmreader("../../conf/test.ini");
     Client client;
 
     shmreader.listen(&client);

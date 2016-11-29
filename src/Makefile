@@ -5,7 +5,7 @@ SUBDIRS = util shm test
 ROOT_DIR=$(shell pwd)
 
 INC = -I$(ROOT_DIR)/../include/shm -I$(ROOT_DIR)/../include/util/
-
+LIB = -lpthread
 SHM_OBJS = $(addsuffix .o, $(basename $(wildcard $(ROOT_DIR)/shm/*.cpp)))
 UTIL_OBJS = $(addsuffix .o, $(basename $(wildcard $(ROOT_DIR)/util/*.cpp)))
 
@@ -42,10 +42,10 @@ ECHO:
 	@echo begin compile
 
 $(TARGET_LIB): $(OBJS)
-	ar cqs $@ $^ $(LIB)
+	ar cqs $@ $^
 
 %.o: %.cpp
-	$(CXX) $(INC) $(LIB) -c -o $@ $<
+	$(CXX) $(INC) -c -o $@ $< $(LIB)
 
 clean:
 	$(call make_subdir , clean)

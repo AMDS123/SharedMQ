@@ -1,4 +1,4 @@
-#include "shmmqproducer.hpp"
+#include "singleproducer.hpp"
 #include <fstream>
 #include <sys/time.h>
 #include <time.h>
@@ -17,7 +17,7 @@ char buff[2600];
 
 int main()
 {
-    ShmMQProducer shmwriter("../../conf/test.ini");
+    Producer shmwriter("../../conf/test.ini");
     printf("start!\n");
     std::ofstream ofs;
     ofs.open ("sender.txt", std::ofstream::out);

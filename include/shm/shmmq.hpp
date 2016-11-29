@@ -32,6 +32,8 @@ public:
         handle data
     ----------------------------------------------
     */
+    void clear()//DELETE
+    {}
     int peek(void *buffer, unsigned buffer_size, unsigned &data_len);
     void remove(void);
     int dequeue(void *buffer, unsigned buffer_size, unsigned &data_len);//no use now...

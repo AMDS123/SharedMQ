@@ -1,13 +1,13 @@
-#ifndef __SHMMQPRODUCER_HEADER__
-#define __SHMMQPRODUCER_HEADER__
+#ifndef __SINGLEPRODUCER_HEADER__
+#define __SINGLEPRODUCER_HEADER__
 
 #include "shmmqoperator.hpp"
 
-class ShmMQProducer
+class Producer
 {
 public:
-    ShmMQProducer(const char *conf_path);
-    ~ShmMQProducer();
+    Producer(const char *conf_path);
+    ~Producer();
 
     int sendData(const void *data, unsigned data_len);
 private:
