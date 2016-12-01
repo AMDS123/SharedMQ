@@ -5,6 +5,9 @@
 #include <sstream>
 #include <strings.h>
 
+namespace util
+{
+
 ConfigReader* ConfigReader::config = NULL;
 
 ConfigReader::~ConfigReader()
@@ -223,4 +226,6 @@ ConfigReader *ConfigReader::getConfigReader(const char *file)
         config->Load(file);
     }
     return config;
+}
+
 }

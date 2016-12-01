@@ -2,6 +2,9 @@
 #include "errors.hpp"
 #include "configreader.hpp"
 
+namespace util
+{
+
 FifoFd::FifoFd(const char *conf_path, Role role)
 {
     const char *fifo_path = ConfigReader::getConfigReader(conf_path)->GetString("fifo", "fifopath", "leechanx_fifo").c_str();
@@ -200,4 +203,6 @@ ssize_t EventFd::recv_fd(int sockfd, void *data, size_t types)
         notify_fd = -1;
     }
     return n;
+}
+
 }

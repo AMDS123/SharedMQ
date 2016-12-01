@@ -4,7 +4,7 @@
 
 Producer::Producer(const char *conf_path)
 {
-    shmmq_operator = new ShmMQOperator(conf_path, WRITER);
+    shmmq_operator = new ShmMQOperator(conf_path, util::WRITER);
     exit_if(shmmq_operator == NULL, "new ShmMQOperator");
 }
 

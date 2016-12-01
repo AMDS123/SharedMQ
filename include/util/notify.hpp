@@ -10,6 +10,9 @@
 #include <unistd.h>
 #include <signal.h>
 
+namespace util
+{
+
 enum Role
 {
     READER = 15,
@@ -54,5 +57,7 @@ private:
     ssize_t send_fd(int sockfd, void* data, size_t bytes);
     ssize_t recv_fd(int sockfd, void *data, size_t types);
 };
+
+}
 
 #endif

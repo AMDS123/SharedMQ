@@ -6,9 +6,9 @@
 
 Consumer::Consumer(const char *conf_path)
 {
-    shmmq_operator = new ShmMQOperator(conf_path, READER);
+    shmmq_operator = new ShmMQOperator(conf_path, util::READER);
     exit_if(shmmq_operator == NULL, "new ShmMQOperator");
-    unsigned shmsize = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
+    unsigned shmsize = util::ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
     buffer_blob.capacity = shmsize;
     buffer_blob.data = new char[buffer_blob.capacity];//ERROR, should add new configure about one message MAXSIZE
     exit_if(buffer_blob.data == NULL, "new blob");

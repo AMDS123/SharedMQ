@@ -2,18 +2,18 @@
 #include "configreader.hpp"
 #include "errors.hpp"
 
-ShmMQOperator::ShmMQOperator(const char* conf_path, Role role): notify_fd_handler(NULL)
+ShmMQOperator::ShmMQOperator(const char* conf_path, util::Role role): notify_fd_handler(NULL)
 {
     shmmq = new ShmMQ(conf_path);
     exit_if(shmmq == NULL, "new ShmMQ");
-    const char* notify_select = ConfigReader::getConfigReader(conf_path)->GetString("common", "notify", "fifo").c_str();
+    const char* notify_select = util::ConfigReader::getConfigReader(conf_path)->GetString("common", "notify", "fifo").c_str();
     if (strcmp(notify_select, "fifo") == 0)
     {
-        notify_fd_handler = new FifoFd(conf_path, role);
+        notify_fd_handler = new util::FifoFd(conf_path, role);
     }
     else if (strcmp(notify_select, "eventfd") == 0)
     {
-        notify_fd_handler = new EventFd(conf_path, role);
+        notify_fd_handler = new util::EventFd(conf_path, role);
     }
     exit_if(notify_fd_handler == NULL, "new NotifyFileHandler");
 }
