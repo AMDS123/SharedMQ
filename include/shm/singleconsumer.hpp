@@ -49,7 +49,7 @@ private:
     void readDataUntilEmpty(void);
 
     Blob_Type buffer_blob;
-    ShmMQOperator *shmmq_operator;
+    ShmBase::ShmMQOperator *shmmq_operator;
     SHM_CALLBACK *call_back;
     int poll_fd;
 };

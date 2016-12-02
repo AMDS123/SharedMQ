@@ -2,6 +2,9 @@
 #include "configreader.hpp"
 #include "errors.hpp"
 
+namespace ShmBase
+{
+
 ShmMQOperator::ShmMQOperator(const char* conf_path, util::Role role): notify_fd_handler(NULL)
 {
     shmmq = new ShmMQ(conf_path);
@@ -45,4 +48,6 @@ int ShmMQOperator::begin_consume(void *buffer, unsigned buffer_size, unsigned &d
 void ShmMQOperator::finish_consume(void)
 {
     notify_fd_handler->receive_event();
+}
+
 }

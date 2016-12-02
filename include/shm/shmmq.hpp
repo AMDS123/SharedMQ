@@ -6,12 +6,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+namespace ShmBase
+{
+
 #define BIG_ENDIAN_VALUE 0
 #define LITTLE_ENDIAN_VALUE 1
 #define BEGIN_BOUND_VALUE 0x3d45425e//little-endian of: "^BE="
 #define END_BOUND_VALUE 0x24444e3d//little-endian of: "=ND$"
 #define BOUND_VALUE_LEN 4
-
 #define MSG_HEAD_LEN (sizeof(unsigned) + BOUND_VALUE_LEN)
 
 class ShmMQ
@@ -32,8 +34,6 @@ public:
         handle data
     ----------------------------------------------
     */
-    void clear()//DELETE
-    {}
     int peek(void *buffer, unsigned buffer_size, unsigned &data_len);
     void remove(void);
     int dequeue(void *buffer, unsigned buffer_size, unsigned &data_len);//no use now...
@@ -67,5 +67,7 @@ private:
 
     unsigned new_head_addr;
 };
+
+}
 
 #endif

@@ -4,6 +4,9 @@
 #include "shmmq.hpp"
 #include "notify.hpp"
 
+namespace ShmBase
+{
+
 class ShmMQOperator
 {
 public:
@@ -19,4 +22,5 @@ private:
     ShmMQ* shmmq;
 };
 
+}
 #endif

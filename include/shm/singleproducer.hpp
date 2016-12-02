@@ -11,7 +11,7 @@ public:
 
     int sendData(const void *data, unsigned data_len);
 private:
-    ShmMQOperator *shmmq_operator;
+    ShmBase::ShmMQOperator *shmmq_operator;
 };
 
 #endif

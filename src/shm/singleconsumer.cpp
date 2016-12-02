@@ -6,7 +6,7 @@
 
 Consumer::Consumer(const char *conf_path)
 {
-    shmmq_operator = new ShmMQOperator(conf_path, util::READER);
+    shmmq_operator = new ShmBase::ShmMQOperator(conf_path, util::READER);
     exit_if(shmmq_operator == NULL, "new ShmMQOperator");
     unsigned shmsize = util::ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
     buffer_blob.capacity = shmsize;

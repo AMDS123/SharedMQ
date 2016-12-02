@@ -5,6 +5,9 @@
 #include <fstream>
 #include <sys/stat.h>
 
+namespace ShmBase
+{
+
 void ShmMQ::init(bool first_use)
 {
     shm_mem = shmat(shmid, NULL, 0);
@@ -222,7 +225,6 @@ int ShmMQ::peek(void *buffer, unsigned buffer_size, unsigned &data_len)
     if (total_len > used_len)
     {
         TELL_ERROR("mem is messed up.");
-        clear(); //clear shm
         return QUEUE_ERR_MEMESS;
     }
     data_len = total_len - MSG_HEAD_LEN;
@@ -274,4 +276,6 @@ int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len)//no u
         remove();
     }
     return ret;
+}
+
 }
