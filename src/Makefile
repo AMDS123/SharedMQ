@@ -41,7 +41,7 @@ ECHO:
 	@echo $(SUBDIRS)
 	@echo begin compile
 
-$(TARGET_LIB): $(OBJS)
+$(TARGET_LIB): $(OBJS) $(HEADER_FILES)
 	ar cqs $@ $^
 
 %.o: %.cpp

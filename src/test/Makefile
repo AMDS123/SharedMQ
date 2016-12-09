@@ -3,10 +3,12 @@ RECEIVER = receiver.test
 
 all: $(SENDER) $(RECEIVER)
 
-$(SENDER): sender.o $(OBJS)
+HEADFILES_REF = $(wildcard ../../include/shm/*.hpp)
+
+$(SENDER): sender.o $(OBJS) $(HEADFILES_REF)
 	$(CXX) $(INC) -g -o $@ $^ $(LIB)
 
-$(RECEIVER): receiver.o $(OBJS)
+$(RECEIVER): receiver.o $(OBJS) $(HEADFILES_REF)
 	$(CXX) $(INC) -g -o $@ $^ $(LIB)
 
 clean:
