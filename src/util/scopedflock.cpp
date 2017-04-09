@@ -1,5 +1,5 @@
-#include "scopedflock.hpp"
-#include "errors.hpp"
+#include "scopedflock.h"
+#include "errors.h"
 
 namespace util
 {

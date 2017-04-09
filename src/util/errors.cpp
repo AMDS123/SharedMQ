@@ -1,4 +1,4 @@
-#include "errors.hpp"
+#include "errors.h"
 
 void exit_if(int condition, const char *format, ...)
 {

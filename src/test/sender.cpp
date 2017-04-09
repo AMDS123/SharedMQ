@@ -1,9 +1,12 @@
-#include "singleproducer.hpp"
+#include <iostream>
 #include <fstream>
 #include <sys/time.h>
 #include <time.h>
 #include <stdlib.h>
-#include <iostream>
+#include "single_producer.h"
+#include <list>
+
+using namespace std;
 
 long int getCurrentTimeInMillis()
 {
@@ -29,17 +32,48 @@ int main()
         buff[i] = i % 26 + 'a';
     }
 
+    #if 0
     #define SCALE 100000
-    bool flag = false;
+    std::string err_msg;
 
     for (int i = 0;i < SCALE; ++i)
     {
         unsigned len = rand() % 10 + 16;
-        if (shmwriter.sendData(buff, len) == 0)
+        unsigned long ts = getCurrentTimeInMillis();
+        if (shmwriter.sendData(buff, len, err_msg) == 0)
         {
-            std::cout << "send data" << std::endl;
-            ofs << std::string(buff, len) << "+" << getCurrentTimeInMillis() << std::endl;
+            ofs << std::string(buff, len) << "+" << ts << std::endl;
+        }
+        else
+        {
+            std::cout << err_msg << std::endl;
         }
     }
     ofs.close();
+    #endif
+    unsigned counter = 0;
+    #define SCALE 100000
+    std::string err_msg;
+    std::list<unsigned long> tsq;
+    unsigned long start_ts = getCurrentTimeInMillis();
+    for (int i = 0;i < SCALE; ++i)
+    {
+        tsq.push_back(getCurrentTimeInMillis());
+        if (shmwriter.sendData(buff, 1000, err_msg) == 0)
+        {
+            counter++;
+        }
+        else
+        {
+            tsq.pop_back();
+        }
+    }
+    unsigned long end_ts = getCurrentTimeInMillis();
+    std::cout << end_ts - start_ts <<"ms send " << counter << " data" << std::endl;
+
+    FILE *fp = fopen("sender.txt", "w");
+    for (std::list<unsigned long>::iterator it = tsq.begin();
+        it != tsq.end(); ++it)
+        fprintf(fp, "%lu", *it);
+    fclose(fp);
 }

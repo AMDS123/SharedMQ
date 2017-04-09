@@ -3,7 +3,7 @@ RECEIVER = receiver.test
 
 all: $(SENDER) $(RECEIVER)
 
-HEADFILES_REF = $(wildcard ../../include/shm/*.hpp)
+HEADFILES_REF = $(wildcard ../../include/shm/*.h)
 
 $(SENDER): sender.o $(OBJS) $(HEADFILES_REF)
 	$(CXX) $(INC) -g -o $@ $^ $(LIB)

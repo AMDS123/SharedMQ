@@ -1,7 +1,7 @@
 #ifndef __MULTITCONSUMER_HEADER__
 #define __MULTITCONSUMER_HEADER__
 
-#include "singleconsumer.hpp"
+#include "singleconsumer.h"
 
 #include <pthread.h>
 

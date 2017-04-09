@@ -6,6 +6,9 @@ send, rece = sys.argv[1], sys.argv[2]
 
 diff = 0
 
+max_each_diff = 0
+max_each_diff_line = -1
+
 with open(send, 'r') as sf:
     with open(rece, 'r') as rf:
         line1, line2 = sf.readline(), rf.readline()
@@ -21,6 +24,9 @@ with open(send, 'r') as sf:
                 print 'LINE', linesum, 'TIME ERROR'
                 exit()
             diff += t2 - t1
+            if t2 - t1 > max_each_diff:
+                max_each_diff = t2 - t1
+                max_each_diff_line = linesum
             line1, line2 = sf.readline(), rf.readline()
         if not line1 and not line2:
             print 'OK'
@@ -33,3 +39,5 @@ with open(send, 'r') as sf:
         if unprocess_sum:
             print 'NO PROCESS SUM', unprocess_sum
         print 'PROCESS COST', diff * 1.0 / linesum, 'MS, TOTAL', linesum
+        print 'MAX DIFF', max_each_diff
+        print 'IN LINE', max_each_diff_line

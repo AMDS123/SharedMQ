@@ -7,5 +7,5 @@ all:$(CUR_OBJS)
 clean:
 	rm *.o
 
-%.o: %.cpp $(HEADFILES_DIR)%.hpp
+%.o: %.cpp $(HEADFILES_DIR)%.h
 	$(CXX) $(INC) -c -o $@ $< $(LIB)

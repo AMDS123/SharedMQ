@@ -1,7 +1,7 @@
 #ifndef __MUTILPPRODUCER_HEADER__
 #define __MUTILPPRODUCER_HEADER__
 
-#include "singleproducer.hpp"
+#include "singleproducer.h"
 
 class MutilPProducer: public Producer
 {

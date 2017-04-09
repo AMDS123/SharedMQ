@@ -1,8 +1,10 @@
-#include "singleconsumer.hpp"
 #include <iostream>
 #include <fstream>
-#include <sys/time.h>
+#include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
+#include "single_consumer.h"
+#include <list>
 
 long int getCurrentTimeInMillis()
 {
@@ -15,30 +17,51 @@ long int getCurrentTimeInMillis()
 class Client: public SHM_CALLBACK
 {
 public:
-    Client()
+    Client(int scale)
     {
-        ofs.open ("receiver.txt", std::ofstream::out);
+//        ofs.open ("receiver.txt", std::ofstream::out);
+        starttime = 0;
+        endtime = 0;
+        counter = 0;
+        this->scale = scale;
+        fp = fopen("receiver.txt", "w");
     }
 
     ~Client()
     {
-        ofs.close();
+//        ofs.close();
     }
 
     void do_poll(Blob_Type *buffer_blob)
     {
-        std::cout << "receive data" << std::endl;
-        long int currenttime = getCurrentTimeInMillis();
-        ofs << std::string(buffer_blob->data, buffer_blob->len) << "+" << currenttime << std::endl;
+//        long int currenttime = getCurrentTimeInMillis();
+//        ofs << std::string(buffer_blob->data, buffer_blob->len) << "+" << currenttime << std::endl;
+        if (!starttime)
+            starttime = getCurrentTimeInMillis();
+        endtime = getCurrentTimeInMillis();
+        ++counter;
+        tsq.push_back(getCurrentTimeInMillis());
+        if (counter == scale)
+        {
+            std::cout << endtime - starttime << " read " << scale << " data\n";
+            for (std::list<unsigned long>::iterator it = tsq.begin();it != tsq.end(); ++it)
+                fprintf(fp, "%lu", *it);
+            fclose(fp);
+        }
     }
 private:
-    std::ofstream ofs;
+    FILE* fp;
+    std::list<unsigned long> tsq;
+    int counter;
+    int scale;
+    unsigned int starttime;
+    unsigned int endtime;
 };
 
 int main()
 {
     Consumer shmreader("../../conf/test.ini");
-    Client client;
+    Client client(1000000);
 
     shmreader.listen(&client);
 }

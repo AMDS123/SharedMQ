@@ -15,11 +15,11 @@ export CXX INC OBJS LIB
 
 define make_subdir
  @for subdir in $(SUBDIRS) ; do \
- ( cd $$subdir && make $1) \
+ (echo $(SHM_OBJS)  && cd $$subdir && make $1) \
  done;
 endef
 
-HEADER_FILES += $(shell find ../include/ -name '*.hpp')
+HEADER_FILES += $(shell find ../include/ -name '*.h')
 
 TARGET_LIB = libshmmq.a
 
@@ -38,7 +38,6 @@ $(SUBDIRS): ECHO
 	make -C $@
 
 ECHO:
-	@echo $(SUBDIRS)
 	@echo begin compile
 
 $(TARGET_LIB): $(OBJS) $(HEADER_FILES)

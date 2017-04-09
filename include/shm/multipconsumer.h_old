@@ -1,7 +1,7 @@
 #ifndef __MULTIPCONSUMER_HEADER__
 #define __MULTIPCONSUMER_HEADER__
 
-#include "singleconsumer.hpp"
+#include "singleconsumer.h"
 
 class MutilPConsumer: public Consumer
 {
