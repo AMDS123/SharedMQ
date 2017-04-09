@@ -52,7 +52,7 @@ int main()
     ofs.close();
     #endif
     unsigned counter = 0;
-    #define SCALE 100000
+    #define SCALE 1000000
     std::string err_msg;
     std::list<unsigned long> tsq;
     unsigned long start_ts = getCurrentTimeInMillis();
@@ -74,6 +74,6 @@ int main()
     FILE *fp = fopen("sender.txt", "w");
     for (std::list<unsigned long>::iterator it = tsq.begin();
         it != tsq.end(); ++it)
-        fprintf(fp, "%lu", *it);
+        fprintf(fp, "%lu\n", *it);
     fclose(fp);
 }

@@ -45,7 +45,7 @@ public:
         {
             std::cout << endtime - starttime << " read " << scale << " data\n";
             for (std::list<unsigned long>::iterator it = tsq.begin();it != tsq.end(); ++it)
-                fprintf(fp, "%lu", *it);
+                fprintf(fp, "%lu\n", *it);
             fclose(fp);
         }
     }

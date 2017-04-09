@@ -162,7 +162,6 @@ int ShmMQ::enqueue(const void *data, unsigned data_len, std::string& err_msg)
 int ShmMQ::dequeue(void *buffer, unsigned buffer_size, unsigned &data_len, std::string& err_msg)
 {
     unsigned head = *head_ptr, tail = *tail_ptr;
-    std::cout << "head:" << head << " tail:" << tail << std::endl;
     if (head == tail)
     {
         err_msg = "shm empty";
