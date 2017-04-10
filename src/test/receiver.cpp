@@ -24,7 +24,6 @@ public:
         endtime = 0;
         counter = 0;
         this->scale = scale;
-        fp = fopen("receiver.txt", "w");
     }
 
     ~Client()
@@ -43,6 +42,7 @@ public:
         tsq.push_back(getCurrentTimeInMillis());
         if (counter % scale == 0)
         {
+            fp = fopen("receiver.txt", "w");
             std::cout << endtime - starttime << " read " << scale << " data\n";
             for (std::list<unsigned long>::iterator it = tsq.begin();it != tsq.end(); ++it)
                 fprintf(fp, "%lu\n", *it);
