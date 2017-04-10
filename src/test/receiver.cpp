@@ -47,6 +47,7 @@ public:
             for (std::list<unsigned long>::iterator it = tsq.begin();it != tsq.end(); ++it)
                 fprintf(fp, "%lu\n", *it);
             fclose(fp);
+            starttime = 0;
         }
     }
 private:
