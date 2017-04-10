@@ -41,7 +41,7 @@ public:
         endtime = getCurrentTimeInMillis();
         ++counter;
         tsq.push_back(getCurrentTimeInMillis());
-        if (counter == scale)
+        if (counter % scale == 0)
         {
             std::cout << endtime - starttime << " read " << scale << " data\n";
             for (std::list<unsigned long>::iterator it = tsq.begin();it != tsq.end(); ++it)

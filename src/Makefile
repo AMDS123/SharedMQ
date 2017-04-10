@@ -15,7 +15,7 @@ export CXX INC OBJS LIB
 
 define make_subdir
  @for subdir in $(SUBDIRS) ; do \
- (echo $(SHM_OBJS)  && cd $$subdir && make $1) \
+ (cd $$subdir && make $1) \
  done;
 endef
 
