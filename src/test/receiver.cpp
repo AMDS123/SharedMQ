@@ -48,6 +48,7 @@ public:
                 fprintf(fp, "%lu\n", *it);
             fclose(fp);
             starttime = 0;
+            tsq.clear();
         }
     }
 private:
