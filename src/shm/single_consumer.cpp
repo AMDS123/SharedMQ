@@ -40,7 +40,7 @@ void Consumer::loopReadData(void)
         ret = shmmq_notifier->consume(buffer_blob.data, buffer_blob.capacity, buffer_blob.len, err_msg);
         if (ret != QUEUE_SUCC)
         {
-            TELL_ERROR(err_msg.c_str());
+            //TELL_ERROR(err_msg.c_str());
             break;
         }
         call_back->do_poll(&buffer_blob);
