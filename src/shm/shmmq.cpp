@@ -16,14 +16,19 @@ ShmMQ::ShmMQ(const char *conf_path)
     key_t key = ::ftok(key_path, id);
     exit_if(key == (key_t)-1, "ftok key");
 
-    bool first_attach = false;
+    bool shm_creater = false;
 
     int shmid;
-    if ((shmid = ::shmget(key, shm_size, 0666)) == -1)
+    if ((shmid = ::shmget(key, shm_size, IPC_CREAT | IPC_EXCL | 0666)) == -1)
     {
-        shmid = ::shmget(key, shm_size, IPC_CREAT | 0666);
-        first_attach = true;
+        //already created shm by other processer
+        shmid = ::shmget(key, shm_size, 0666);
         exit_if(shmid == -1, "shmget");
+    }
+    else
+    {
+        //I create this shm
+        shm_creater = true;
     }
 
     shm_mem = ::shmat(shmid, NULL, 0);
@@ -35,7 +40,7 @@ ShmMQ::ShmMQ(const char *conf_path)
     block_ptr = (char *)(tail_ptr + 1);
     block_size = shm_size - sizeof(unsigned) * 2;
 
-    if (first_attach)
+    if (shm_creater)
     {
         *head_ptr = 0;
         *tail_ptr = 0;
