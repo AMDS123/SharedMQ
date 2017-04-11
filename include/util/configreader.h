@@ -5,9 +5,6 @@
 #include <vector>
 #include <map>
 
-namespace util
-{
-
 typedef std::map<std::string, std::map<std::string, std::string>*> STR_MAP;
 typedef STR_MAP::iterator STR_MAP_ITER;
 
@@ -37,7 +34,5 @@ private:
 
     STR_MAP _map;
 };
-
-}
 
 #endif

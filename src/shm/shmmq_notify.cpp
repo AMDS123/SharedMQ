@@ -16,7 +16,7 @@ ShmMQNotify::ShmMQNotify(const char* conf_path, Role role): read_fifo_cnt(0), wr
     shmmq = new ShmMQ(conf_path);
     exit_if(shmmq == NULL, "new ShmMQ");
 
-    const char *fifo_path = util::ConfigReader::getConfigReader(conf_path)->GetString("fifo", "fifopath", "leechanx_fifo").c_str();
+    const char *fifo_path = ConfigReader::getConfigReader(conf_path)->GetString("fifo", "fifopath", "leechanx_fifo").c_str();
     if (::access(fifo_path, F_OK) == -1)
     {
         int ret = ::mkfifo(fifo_path, 0666);

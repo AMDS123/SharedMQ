@@ -1,5 +1,5 @@
-#include <sys/epoll.h>
 #include <errno.h>
+#include <sys/epoll.h>
 #include "errors.h"
 #include "configreader.h"
 #include "single_consumer.h"
@@ -8,7 +8,7 @@ Consumer::Consumer(const char *conf_path)
 {
     shmmq_notifier = new ShmBase::ShmMQNotify(conf_path, ShmBase::ShmMQNotify::READER);
     exit_if(shmmq_notifier == NULL, "new ShmMQNotify");
-    unsigned msg_max_len = util::ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "msg_max_len", 10240);
+    unsigned msg_max_len = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "msg_max_len", 10240);
     buffer_blob.capacity = msg_max_len;
     buffer_blob.data = new char[msg_max_len];
     exit_if(buffer_blob.data == NULL, "new blob");
