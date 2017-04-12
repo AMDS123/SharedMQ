@@ -1,7 +1,7 @@
 #include <unistd.h>
 #include <sys/file.h>
 #include "errors.h"
-#include "multiproducer.h"
+#include "multi_producer.h"
 #include "configreader.h"
 
 MultiProducer::MultiProducer(const char *conf_path)

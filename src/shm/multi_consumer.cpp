@@ -3,7 +3,7 @@
 #include <sys/file.h>
 #include <sys/epoll.h>
 #include "configreader.h"
-#include "multiconsumer.h"
+#include "multi_consumer.h"
 
 MultiConsumer::MultiConsumer(const char *conf_path, int max_msg_cnt): buffer_blobs(max_msg_cnt)
 {
