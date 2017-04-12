@@ -17,10 +17,8 @@
 #define QUEUE_ERR_OTFBUFF  (QUEUE_ERR - 5) //user buffer overflow
 #define QUEUE_ERR_TIMEOUT  (QUEUE_ERR - 6) //no data arrive in shmmq within the specified time
 
-#define SYS_ERR -2000
-#define NODATA_ERR (SYS_ERR - 1)
-#define ARG_ERR (SYS_ERR - 2)
-#define NOAUTHOR_CALL (SYS_ERR - 3)
+#define SYS_ERR -1
+#define NOAUTHOR_CALL -2
 
 #define TELL_ERROR(format, ...) fprintf(stderr, "ERROR: %s\n", format, ## __VA_ARGS__)
 
