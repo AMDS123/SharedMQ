@@ -10,10 +10,9 @@ namespace ShmBase
 ShmMQ::ShmMQ(const char *conf_path)
 {
     const char *key_path = ConfigReader::getConfigReader(conf_path)->GetString("shm", "keypath", "").c_str();
-    int id = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "id", 1);
     unsigned shm_size = ConfigReader::getConfigReader(conf_path)->GetNumber("shm", "shmsize", 10240);
 
-    key_t key = ::ftok(key_path, id);
+    key_t key = ::ftok(key_path, 1);
     exit_if(key == (key_t)-1, "ftok key");
 
     bool shm_creater = false;
